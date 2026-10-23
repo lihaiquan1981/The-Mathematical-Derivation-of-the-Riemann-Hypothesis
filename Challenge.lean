@@ -45,9 +45,8 @@ def dot (w u : ℝ × ℝ) : ℝ := w.1 * u.1 + w.2 * u.2
 /-- Euclidean norm on `ℝ × ℝ`. Mathlib's norm on a product is the max norm. -/
 noncomputable def nrm2 (u : ℝ × ℝ) : ℝ := Real.sqrt (u.1 ^ 2 + u.2 ^ 2)
 
-/-- Coupling quadratic form of the double-reflection kernel on a four-point
-vector field `w`: each point is paired with its `A`-image through `JA` and with
-its `B`-image through `JB`, with coupling constant `C`. -/
+/-- Quadratic form on a four-point vector field `w`: each point is paired with
+its `A`-image through `JA` and with its `B`-image through `JB`, scaled by `C / 4`. -/
 noncomputable def Kquad (C : ℝ) (w : Fin 4 → ℝ × ℝ) : ℝ :=
   (C / 4) * ∑ i : Fin 4, (dot (w i) (JA (w (iA i))) + dot (w i) (JB (w (iB i))))
 
@@ -119,9 +118,9 @@ theorem Kquad_chiAB_neg (C : ℝ) (w : Fin 4 → ℝ × ℝ) (hC : 0 < C)
     Kquad C w < 0 := by
   sorry
 
-/-- Theorem 9.5, simple-zero form. A zero `σ + i t` with `σ ≠ 1/2`, `t ≠ 0` of an
-entire doubly reflected `f` contradicts the unitarity hypothesis `hunit`, which
-asks the coupling form to be positive on the orbit gradient of such a zero. -/
+/-- Theorem 9.5, simple-zero form. For an entire doubly reflected `f` whose zeros
+are simple (`hsimple`), a zero `σ + i t` with `σ ≠ 1/2`, `t ≠ 0` contradicts
+`hunit`, which asks `Kquad C` to be positive on the orbit gradient of such a zero. -/
 theorem theorem_9_5_final (C : ℝ) (hC : 0 < C)
     (f : ℂ → ℂ) (hf : Differentiable ℂ f)
     (h_sym : ∀ s, f (1 - s) = f s) (h_conj : ∀ s, f (star s) = star (f s))
@@ -196,10 +195,11 @@ theorem RH_xi_zeros (C : ℝ) (hC : 0 < C)
     s.re = 1 / 2 ∨ s = 0 ∨ s = 1 := by
   sorry
 
-/-- Theorem 9.5 for zeros of any multiplicity. `E m` is the order-`m` jet energy
-form. `hE_pos` is the unitarity hypothesis on the jet configuration of an
-off-line nonreal zero; `hE_neg` asks `E m` to be negative on every nonzero jet
-with the χAB pairing. The two together exclude such a zero. -/
+/-- Theorem 9.5 for zeros of any multiplicity. `E` is an arbitrary real-valued
+function of `m` and a four-point jet `J`. `hE_pos` asks `0 ≤ E m J` when `J` is
+the order-`m` derivative of `f` on the orbit of a zero with `σ ≠ 1/2`, `t ≠ 0`;
+`hE_neg` asks `E m J < 0` for every nowhere-zero `J` with the two pairing laws.
+For `f` not identically zero, the two hypotheses exclude such a zero. -/
 theorem theorem_9_5_multiplicity (C : ℝ) (hC : 0 < C)
     (E : ℕ → (Fin 4 → ℂ) → ℝ)
     (f : ℂ → ℂ)
@@ -221,8 +221,8 @@ theorem theorem_9_5_multiplicity (C : ℝ) (hC : 0 < C)
     False := by
   sorry
 
-/-- ξ assembly for zeros of any multiplicity. The simplicity hypothesis of
-`RH_xi` is removed; `hE_pos`, `hE_neg`, and `hζ` stay on the signature. -/
+/-- ξ assembly for zeros of any multiplicity. The conclusion of `RH_xi`, with
+`hunit` and `hg_simple` replaced by `hE_pos` and `hE_neg`; `hζ` stays. -/
 theorem RH_xi_any_multiplicity (C : ℝ) (hC : 0 < C)
     (E : ℕ → (Fin 4 → ℂ) → ℝ)
     (g : ℂ → ℂ)
@@ -245,9 +245,11 @@ theorem RH_xi_any_multiplicity (C : ℝ) (hC : 0 < C)
     s.re = 1 / 2 := by
   sorry
 
-/-- Section 5A.8 under the spectral reading `hSpec : Set.range α = Z`: real roots,
-real spectrum, symmetry, a unitary group, and real energies are equivalent.
-This does not prove that the roots are real. -/
+/-- Section 5A.8 under `hSpec : Set.range α = Z`. `Z` lies in the real axis if and
+only if all of the following hold: the range of `α` is real; multiplication by
+each `α i` is symmetric; each `τ ↦ exp (i τ α i)` has norm 1 and tends to 1 at
+`τ = 0`; each `α i` has zero imaginary part. This does not prove that any
+element of `Z` is real. -/
 theorem five_eight_equiv {ι : Type*} (α : ι → ℂ) (Z : Set ℂ) (hSpec : Set.range α = Z) :
     Z ⊆ {z : ℂ | z.im = 0} ↔
       Set.range α ⊆ {z : ℂ | z.im = 0} ∧

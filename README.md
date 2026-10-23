@@ -27,20 +27,22 @@ lake build
 
 | File | Content |
 |---|---|
-| `MotherEquation_CoreVerification.lean` | Integer arithmetic certificates |
+| `MotherEquation_CoreVerification.lean` | Integer sign certificates |
 | `Theorem_9_3A.lean` | Even reduction `f s = g ((s - 1/2)^2)` |
 | `Lemma_9_4.lean` | Reflection laws and gradient of `Im f` |
 | `Lemma_9_5C.lean`, `Lemma_9_5C_TaylorRemainder.lean` | Sign of `Kquad` on χAB configurations; Taylor remainder |
 | `Unitarity_Assembly.lean`, `Theorem_9_5_Closure.lean` | Theorems 9.5 and 10 under `hunit` |
-| `Lemma_11_3.lean` | ξ is real and positive on the real axis under `hζ` |
+| `Lemma_11_3.lean` | ξ is real and positive at real points other than 0, 1, under `hζ` |
 | `Final_Assembly.lean` | Assemblies for simple zeros |
 | `Note_9_5B_mJet.lean`, `Final_Assembly_Unconditional.lean` | Assemblies for zeros of any multiplicity |
 | `Section5A8_Unitarity.lean` | Five-way equivalence under `hSpec` |
 
 ## Hypotheses kept on the signatures
 
-- `hunit`: positivity of `Kquad` on the orbit gradient of an off-line nonreal zero.
-- `hE_pos`, `hE_neg`: sign conditions on the jet energy `E`.
+- `hsimple`, `hg_simple`: all zeros are simple, in the simple-zero assemblies.
+- `hunit`: positivity of `Kquad` on the orbit gradient of a zero off the
+  critical line and off the real axis.
+- `hE_pos`, `hE_neg`: sign conditions on a real-valued function `E` of jets.
 - `hζ`: `ζ` is negative on `(0, 1)`.
 - `hBd`: bounded second derivative, in `taylor_remainder_C2`.
 - `hSpec`: `Set.range α = Z`, in `five_eight_equiv`.
