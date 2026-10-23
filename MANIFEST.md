@@ -5,10 +5,10 @@ Email: lihaiquan@jluct.edu.cn
 
 # MANIFEST
 
-Master directory and integrity table of the delivered folder. Every file
-carries a SHA-256 checksum so that re-checkers can verify — via `sha256sum`
-comparison — that the files are untampered and bit-identical to the sources
-that passed compilation.
+Master directory and integrity table of the Lean 4.34.0-rc2 archive. The
+SHA-256 values below match the `.lean.txt` copies. The `.lean` files in this
+Palomar commit add a module header and are built with Lean `v4.35.0-rc2`;
+do not expect those SHA-256 values to match the `.lean` files.
 
 - Toolchain: Lean 4.34.0-rc2 (commit 6a10ac8) + mathlib v4.34.0-rc2
 - Reproduction: see `reproduce_build.sh`; complete per-module build logs in

@@ -1,3 +1,5 @@
+module
+
 /-
 Li Haiquan
 Jilin University of Chemical Technology, China
@@ -5,8 +7,11 @@ ORCID: https://orcid.org/0009-0000-7365-6535
 Email: lihaiquan@jluct.edu.cn
 -/
 
-import Theorem_9_5_Closure
-import Lemma_11_3
+public import Theorem_9_5_Closure
+public import Lemma_11_3
+
+@[expose] public section
+
 
 /-!
 # Note 9.5B / Note 11.2.3 — m-th Order Jet Analytic Assembly
@@ -376,3 +381,5 @@ section Audit
 #print axioms RHM.theorem_9_5_multiplicity
 #print axioms RHM.theorem_10_unconditional
 end Audit
+
+end

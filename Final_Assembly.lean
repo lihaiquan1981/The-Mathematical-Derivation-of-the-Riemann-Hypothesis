@@ -1,3 +1,5 @@
+module
+
 /-
 Li Haiquan
 Jilin University of Chemical Technology, China
@@ -5,8 +7,11 @@ ORCID: https://orcid.org/0009-0000-7365-6535
 Email: lihaiquan@jluct.edu.cn
 -/
 
-import Theorem_9_5_Closure
-import Lemma_11_3
+public import Theorem_9_5_Closure
+public import Lemma_11_3
+
+@[expose] public section
+
 
 /-!
 # Final Assembly — Endpoint of the Machine-Verification Chain for the
@@ -158,3 +163,5 @@ section Audit
 #print axioms RHFinal.RH_xi
 #print axioms RHFinal.RH_xi_zeros
 end Audit
+
+end

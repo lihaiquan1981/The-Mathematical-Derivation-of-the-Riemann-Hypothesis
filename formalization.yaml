@@ -1,0 +1,171 @@
+# formalization.yaml v0.4
+version: "v0.4"
+
+project:
+  name: "Load-bearing chain of the forward-reverse closure"
+  description: >-
+    Li Haiquan, Jilin University of Chemical Technology. This Comparator entry
+    checks the exit theorem of each development module: the even reduction,
+    the mother-equation sign certificate, the chiAB energy sign, the closed
+    unitarity loop, the xi positivity lemma, both assemblies, the higher-order
+    jet loop, the Taylor remainder, and the five-way equivalence under an
+    explicit spectral reading. Hypotheses that the manuscript keeps on a
+    signature stay on that signature. The entry does not assert the 1859
+    statement of the Riemann Hypothesis.
+  authors:
+    - "Li Haiquan"
+  license: "GPL-3.0"
+  responsible_maintainers:
+    - "Li Haiquan"
+
+classification:
+  arxiv: ["math.NT", "math.CV"]
+  msc2020: ["11M26", "47B25", "68V15"]
+
+sources:
+  - title: "The Mathematical Derivation of the Forward-Reverse Reversible Bidirectional Closure of the Riemann Hypothesis"
+    authors:
+      - "Li Haiquan"
+    type: "paper"
+    relationship: "formalizes"
+    note: >-
+      comparator.json names the exit declaration of each module in the
+      manuscript. ORCID https://orcid.org/0009-0000-7365-6535.
+      Email lihaiquan@jluct.edu.cn.
+
+status:
+  scope: >-
+    comparator.json compares the twenty-one declarations listed there. Each
+    Solution proof calls the corresponding development theorem, so the lemmas
+    used by that proof are in the checked cone. hζ, hE_pos, hE_neg, hBd,
+    hg_simple, and hSpec stay on the signatures and are not discharged.
+    The 1859 German sentence is not a declaration in Challenge.lean.
+    lemma_9_5C quantifies over the project type FieldData, so it is not a
+    separate Comparator name; its chiAB sign is the named theorem
+    Kquad_chiAB_neg, and the Taylor remainder that fills htaylor is
+    taylor_remainder_C2.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: []
+
+automation:
+  methods:
+    - method: "agent"
+      models: []
+      framework: "n/a"
+      tool_setup: "An interactive coding agent drafted and revised Lean files from the author's manuscript."
+      cost:
+        wall_time: "not tracked"
+        spend_usd: "not tracked"
+        hardware: "local machine"
+        prompting_notes: "n/a"
+  spend_usd: "not tracked"
+  notes: >-
+    Li Haiquan is the author of the manuscript and the responsible maintainer
+    of this formalization. An interactive coding agent was used to prepare the
+    Lean sources and the Palomar project files.
+
+fidelity:
+  divergences: >-
+    Entireness is formalized as complex differentiability. The xi factor is
+    (s*(s-1)/2)*completedRiemannZeta. Unitarity and the jet energy are
+    hypotheses on the signatures, not theorems with those hypotheses removed.
+    No named statement omits a hypothesis of the development theorem it calls.
+
+review:
+  status: "self-assessed"
+  notes: >-
+    The author checked the earlier compile of these proofs on Lean 4.34.0-rc2.
+    Those logs are in build_logs/. This commit ports the sources to the module
+    system and pins Lean v4.35.0-rc2, which is Palomar's current minimum.
+    Challenge.lean and Solution.lean were rebuilt together on that toolchain.
+
+alignment:
+  namespace: "Solution"
+  statements:
+    - source: "Theorem 9.3A"
+      lean: "theorem_9_3A"
+      module: "Solution"
+      status: "proved"
+    - source: "Mother-equation sign certificate"
+      lean: "mother_equation_core_certificate"
+      module: "Solution"
+      status: "proved"
+    - source: "Unitarity sign"
+      lean: "unitarity_sign"
+      module: "Solution"
+      status: "proved"
+    - source: "Phase cliff"
+      lean: "phase_cliff"
+      module: "Solution"
+      status: "proved"
+    - source: "No intermediate orbit state"
+      lean: "no_intermediate_state"
+      module: "Solution"
+      status: "proved"
+    - source: "Lemma 9.4"
+      lean: "lemma_9_4"
+      module: "Solution"
+      status: "proved"
+    - source: "chiAB negative energy"
+      lean: "Kquad_chiAB_neg"
+      module: "Solution"
+      status: "proved"
+    - source: "Theorem 9.5 closed loop"
+      lean: "theorem_9_5_final"
+      module: "Solution"
+      status: "proved"
+    - source: "Theorem 10 closed loop"
+      lean: "theorem_10_final"
+      module: "Solution"
+      status: "proved"
+    - source: "Lemma 11.3"
+      lean: "lemma_11_3"
+      module: "Solution"
+      status: "proved"
+    - source: "Critical-line lock"
+      lean: "critical_line_lock"
+      module: "Solution"
+      status: "proved"
+    - source: "General assembly"
+      lean: "RH_general"
+      module: "Solution"
+      status: "proved"
+    - source: "xi assembly, simple zeros"
+      lean: "RH_xi"
+      module: "Solution"
+      status: "proved"
+    - source: "xi zero set, simple zeros"
+      lean: "RH_xi_zeros"
+      module: "Solution"
+      status: "proved"
+    - source: "Theorem 9.5, arbitrary multiplicity"
+      lean: "theorem_9_5_multiplicity"
+      module: "Solution"
+      status: "proved"
+    - source: "Theorem 10, arbitrary multiplicity"
+      lean: "theorem_10_unconditional"
+      module: "Solution"
+      status: "proved"
+    - source: "General assembly, arbitrary multiplicity"
+      lean: "RH_general_unconditional"
+      module: "Solution"
+      status: "proved"
+    - source: "xi assembly, arbitrary multiplicity"
+      lean: "RH_xi_unconditional"
+      module: "Solution"
+      status: "proved"
+    - source: "xi zero set, arbitrary multiplicity"
+      lean: "RH_xi_zeros_unconditional"
+      module: "Solution"
+      status: "proved"
+    - source: "Taylor remainder under hBd"
+      lean: "taylor_remainder_C2"
+      module: "Solution"
+      status: "proved"
+    - source: "5A.8 five-way equivalence under hSpec"
+      lean: "five_eight_equiv"
+      module: "Solution"
+      status: "proved"
+
+acknowledgements: "Mathlib; Lean 4. The author is Li Haiquan, Jilin University of Chemical Technology."

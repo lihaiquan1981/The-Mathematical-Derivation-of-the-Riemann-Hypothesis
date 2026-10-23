@@ -1,3 +1,5 @@
+module
+
 /-
 Li Haiquan
 Jilin University of Chemical Technology, China
@@ -5,13 +7,16 @@ ORCID: https://orcid.org/0009-0000-7365-6535
 Email: lihaiquan@jluct.edu.cn
 -/
 
-import Mathlib.Analysis.Complex.TaylorSeries
-import Mathlib.Analysis.Complex.CauchyIntegral
-import Mathlib.Analysis.Complex.RealDeriv
-import Mathlib.Analysis.RCLike.Sqrt
-import Mathlib.Analysis.Analytic.OfScalars
-import Mathlib.Algebra.Ring.Parity
-import Mathlib.Tactic
+public import Mathlib.Analysis.Complex.TaylorSeries
+public import Mathlib.Analysis.Complex.CauchyIntegral
+public import Mathlib.Analysis.Complex.RealDeriv
+public import Mathlib.Analysis.RCLike.Sqrt
+public import Mathlib.Analysis.Analytic.OfScalars
+public import Mathlib.Algebra.Ring.Parity
+public import Mathlib.Tactic
+
+@[expose] public section
+
 
 open Complex Nat
 
@@ -309,3 +314,5 @@ section Audit
 #print axioms RH93.g_real_coeff
 #print axioms RH93.unique_rep
 end Audit
+
+end

@@ -1,4 +1,9 @@
-import Mathlib.Analysis.SpecialFunctions.Exp
+module
+
+public import Mathlib.Analysis.SpecialFunctions.Exp
+
+@[expose] public section
+
 
 /-!
 5A.8 only.
@@ -158,3 +163,5 @@ end Section5A8
 #print axioms Section5A8.roots_iff_spec
 #print axioms Section5A8.mode_strongly_continuous
 #print axioms Section5A8.energy_derivative_cancels
+
+end

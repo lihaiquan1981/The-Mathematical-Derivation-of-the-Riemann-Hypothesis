@@ -1,3 +1,5 @@
+module
+
 /-
 Li Haiquan
 Jilin University of Chemical Technology, China
@@ -5,7 +7,10 @@ ORCID: https://orcid.org/0009-0000-7365-6535
 Email: lihaiquan@jluct.edu.cn
 -/
 
-import Note_9_5B_mJet
+public import Note_9_5B_mJet
+
+@[expose] public section
+
 
 /-!
 # Final Assembly (Unconditional Version) — `hg_simple` Eliminated
@@ -169,3 +174,5 @@ section Audit
 #print axioms RHFinalM.RH_xi_unconditional
 #print axioms RHFinalM.RH_xi_zeros_unconditional
 end Audit
+
+end

@@ -1,0 +1,66 @@
+name = "riemann_hypothesis_check"
+version = "0.1.0"
+defaultTargets = [
+  "Challenge",
+  "Solution",
+  "MotherEquation_CoreVerification",
+  "Theorem_9_3A",
+  "Lemma_9_5C",
+  "Unitarity_Assembly",
+  "Lemma_9_4",
+  "Theorem_9_5_Closure",
+  "Lemma_11_3",
+  "Final_Assembly",
+  "Note_9_5B_mJet",
+  "Final_Assembly_Unconditional",
+  "Lemma_9_5C_TaylorRemainder",
+  "Section5A8_Unitarity",
+]
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+git = "https://github.com/leanprover-community/mathlib4.git"
+rev = "v4.35.0-rc2"
+
+[[lean_lib]]
+name = "Challenge"
+
+[[lean_lib]]
+name = "Solution"
+
+[[lean_lib]]
+name = "MotherEquation_CoreVerification"
+
+[[lean_lib]]
+name = "Theorem_9_3A"
+
+[[lean_lib]]
+name = "Lemma_9_5C"
+
+[[lean_lib]]
+name = "Unitarity_Assembly"
+
+[[lean_lib]]
+name = "Lemma_9_4"
+
+[[lean_lib]]
+name = "Theorem_9_5_Closure"
+
+[[lean_lib]]
+name = "Lemma_11_3"
+
+[[lean_lib]]
+name = "Final_Assembly"
+
+[[lean_lib]]
+name = "Note_9_5B_mJet"
+
+[[lean_lib]]
+name = "Final_Assembly_Unconditional"
+
+[[lean_lib]]
+name = "Lemma_9_5C_TaylorRemainder"
+
+[[lean_lib]]
+name = "Section5A8_Unitarity"

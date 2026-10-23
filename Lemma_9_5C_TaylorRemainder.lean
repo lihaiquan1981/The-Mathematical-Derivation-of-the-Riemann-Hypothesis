@@ -1,3 +1,5 @@
+module
+
 /-
 Li Haiquan
 Jilin University of Chemical Technology, China
@@ -5,7 +7,10 @@ ORCID: https://orcid.org/0009-0000-7365-6535
 Email: lihaiquan@jluct.edu.cn
 -/
 
-import Lemma_9_5C
+public import Lemma_9_5C
+
+@[expose] public section
+
 
 /-!
 # The Taylor Remainder Lemma for Lemma 9.5C — `FieldData.htaylor` Upgraded
@@ -204,3 +209,5 @@ section Audit
 #print axioms RHT.taylor_remainder_C2
 #print axioms RHT.lemma_9_5C_unconditional
 end Audit
+
+end

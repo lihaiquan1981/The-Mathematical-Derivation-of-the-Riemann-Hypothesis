@@ -1,3 +1,5 @@
+module
+
 /-
 Li Haiquan
 Jilin University of Chemical Technology, China
@@ -42,6 +44,9 @@ the sign conclusions coincide exactly with the original text.
 
 Build: lean MotherEquation_CoreVerification.lean
 -/
+
+
+@[expose] public section
 
 namespace MotherEquation
 
@@ -426,3 +431,5 @@ end MotherEquation
 #print axioms MotherEquation.mother_equation_core_certificate
 #print axioms MotherEquation.V4.chiAB_is_hom
 #print axioms MotherEquation.V4.orbit_generic_distinct
+
+end

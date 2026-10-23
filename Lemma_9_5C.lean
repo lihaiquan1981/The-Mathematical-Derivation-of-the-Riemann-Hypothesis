@@ -1,3 +1,5 @@
+module
+
 /-
 Li Haiquan
 Jilin University of Chemical Technology, China
@@ -5,11 +7,14 @@ ORCID: https://orcid.org/0009-0000-7365-6535
 Email: lihaiquan@jluct.edu.cn
 -/
 
-import Mathlib.Probability.Distributions.Gaussian.Real
-import Mathlib.Probability.Moments.Variance
-import Mathlib.MeasureTheory.Integral.Prod
-import Mathlib.MeasureTheory.Function.L1Space.Integrable
-import Mathlib.Tactic
+public import Mathlib.Probability.Distributions.Gaussian.Real
+public import Mathlib.Probability.Moments.Variance
+public import Mathlib.MeasureTheory.Integral.Prod
+public import Mathlib.MeasureTheory.Function.L1Space.Integrable
+public import Mathlib.Tactic
+
+@[expose] public section
+
 
 /-!
 # Lemma 9.5C (Heat-Kernel Regularization Limit) — Lean 4 / mathlib Formalization
@@ -844,5 +849,7 @@ section Audit
 #print axioms RH95C.Kquad_chiAB_neg
 #print axioms RH95C.lemma_9_5C
 end Audit
+
+end
 
 end

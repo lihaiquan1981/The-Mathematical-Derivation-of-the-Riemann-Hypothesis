@@ -1,3 +1,5 @@
+module
+
 /-
 Li Haiquan
 Jilin University of Chemical Technology, China
@@ -5,7 +7,10 @@ ORCID: https://orcid.org/0009-0000-7365-6535
 Email: lihaiquan@jluct.edu.cn
 -/
 
-import Unitarity_Assembly
+public import Unitarity_Assembly
+
+@[expose] public section
+
 
 /-!
 # Lemma 9.4 (The χAB Structure of the Local Germ Space) — Lean 4 / mathlib Formalization
@@ -289,3 +294,5 @@ section Audit
 #print axioms RH94.lemma_9_4
 #print axioms RH94.hgrad_of_simple_zero
 end Audit
+
+end

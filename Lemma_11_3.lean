@@ -1,3 +1,5 @@
+module
+
 /-
 Li Haiquan
 Jilin University of Chemical Technology, China
@@ -31,7 +33,10 @@ lock — is machine-proved with zero sorry.
 Axiom audit: all theorems depend only on [propext, Classical.choice, Quot.sound].
 -/
 
-import Mathlib
+public import Mathlib
+
+@[expose] public section
+
 
 open Complex Filter Topology
 
@@ -317,3 +322,5 @@ section Audit
 #print axioms RH113.critical_line_lock
 
 end Audit
+
+end

@@ -9,11 +9,10 @@ Reference paper: *A Successful Mathematical Derivation of the Riemann Hypothesis
 via Bidirectional Forward-Reverse Closure*.
 
 This folder is the English edition of the verification package. All file names,
-module names, and in-file documentation are in English, matching the forthcoming
-English edition of the paper. The formal content (theorem statements, proofs,
-namespaces) is bit-identical to the verified Chinese edition; only file/module
-names and comments have been translated. In case of any discrepancy between the
-two editions, this English edition prevails.
+module names, and in-file documentation are in English. The `.lean.txt` copies
+keep the Lean 4.34.0-rc2 sources whose SHA-256 values are listed in
+`MANIFEST.md`. The `.lean` files add the `module` header Palomar requires.
+Theorem statements and proofs are otherwise unchanged.
 
 ## Pinned Versions
 
@@ -22,6 +21,24 @@ two editions, this English edition prevails.
 | Lean | **4.34.0-rc2** (official leanprover/lean4 release, x86_64-linux, commit 6a10ac8) |
 | mathlib | **v4.34.0-rc2** (leanprover-community/mathlib4, same tag) |
 | Exception | `MotherEquation_CoreVerification.lean` is a single-file, zero-mathlib certificate (originally checked with Lean **4.33.1**; also compiles under 4.34.0-rc2), verifiable directly via `lean <file>` |
+
+## Palomar entry
+
+Palomar's current minimum toolchain is Lean `v4.35.0-rc2`. This repository root
+is a Lake project on that toolchain, with mathlib `v4.35.0-rc2`.
+`comparator.json` names twenty-one exit declarations, covering every development
+module: Theorem 9.3A, the mother-equation sign certificate, Lemma 9.4, the
+chiAB energy sign, the closed Theorems 9.5 and 10, Lemma 11.3, both assemblies,
+the higher-multiplicity loop, the Taylor remainder, and the 5A.8 equivalence.
+Hypotheses kept on a signature in the manuscript stay on that signature.
+The 1859 statement is not one of the compared declarations.
+The logs in `build_logs/` record the earlier Lean 4.34.0-rc2 compile.
+
+```bash
+lake update
+lake exe cache get
+lake build
+```
 
 ## File ↔ Paper Section Correspondence
 

@@ -1,3 +1,5 @@
+module
+
 /-
 Li Haiquan
 Jilin University of Chemical Technology, China
@@ -5,7 +7,10 @@ ORCID: https://orcid.org/0009-0000-7365-6535
 Email: lihaiquan@jluct.edu.cn
 -/
 
-import Lemma_9_4
+public import Lemma_9_4
+
+@[expose] public section
+
 
 /-!
 # Theorem 9.5 / Theorem 10 — Unitarity Final Review (Closed-Loop Version)
@@ -114,3 +119,5 @@ section Audit
 #print axioms RH95Final.theorem_9_5_final
 #print axioms RH95Final.theorem_10_final
 end Audit
+
+end
