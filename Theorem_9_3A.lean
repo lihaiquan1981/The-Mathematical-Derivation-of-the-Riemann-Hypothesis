@@ -17,37 +17,25 @@ public import Mathlib.Tactic
 
 @[expose] public section
 
-
 open Complex Nat
 
 noncomputable section
-
-/-!
-# Theorem 9.3A — Lean 4 / mathlib Formalization
-
-Any double-reflection entire function f (entireness + f(s)=f(1-s) + Schwarz
-reflection) admits a unique representation f(s) = g((s-1/2)²), where g is a
-real-coefficient entire function.
--/
 
 namespace RH93
 
 variable {f : ℂ → ℂ}
 
-/-- Translate to the center 1/2: h(z) = f(1/2+z) -/
 def h (f : ℂ → ℂ) : ℂ → ℂ := fun z => f (1/2 + z)
 
 lemma h_diff (hf : Differentiable ℂ f) : Differentiable ℂ (h f) :=
   hf.comp (by fun_prop)
 
-/-- The functional equation s↦1-s is precisely the evenness of h -/
 lemma h_even (h_sym : ∀ s, f s = f (1 - s)) : Function.Even (h f) := fun z => by
   show f (1/2 + -z) = f (1/2 + z)
   rw [h_sym]
   congr 1
   ring
 
-/-- Schwarz reflection is inherited: h(conj z) = conj(h z) -/
 lemma h_conj_inv (h_conj : ∀ s, f (star s) = star (f s)) :
     ∀ z, h f (star z) = star (h f z) := by
   intro z
@@ -56,7 +44,6 @@ lemma h_conj_inv (h_conj : ∀ s, f (star s) = star (f s)) :
   rw [← hz]
   exact h_conj _
 
-/-- Odd-order derivatives of an even function vanish at 0: odd powers die out -/
 lemma odd_iteratedDeriv_zero (he : Function.Even (h f))
     {n : ℕ} (hn : Odd n) : iteratedDeriv n (h f) 0 = 0 := by
   have hcomp : iteratedDeriv n (fun z => h f (-z)) 0
@@ -72,11 +59,8 @@ lemma odd_iteratedDeriv_zero (he : Function.Even (h f))
   have h2 : 2 * x = 0 := by grind
   exact (mul_eq_zero.mp h2).resolve_left (by norm_num)
 
-/-- Taylor coefficients -/
 def coeff (f : ℂ → ℂ) (n : ℕ) : ℂ := (n ! : ℂ)⁻¹ * iteratedDeriv n (h f) 0
 
-/-- Taylor expansion of the entire function h at 0 (convergent on the whole
-plane) -/
 lemma h_taylor (hf : Differentiable ℂ f) (z : ℂ) :
     HasSum (fun n => coeff f n * z ^ n) (h f z) := by
   have ht := hasSum_taylorSeries_of_entire (h_diff hf) 0 z
@@ -88,15 +72,12 @@ lemma h_summable (hf : Differentiable ℂ f) (z : ℂ) :
     Summable (fun n => coeff f n * z ^ n) :=
   (h_taylor hf z).summable
 
-/-- Odd-order coefficients die out -/
 lemma coeff_odd_zero (h_sym : ∀ s, f s = f (1 - s)) {n : ℕ} (hn : Odd n) :
     coeff f n = 0 := by
   simp [coeff, odd_iteratedDeriv_zero (h_even h_sym) hn]
 
-/-- g: the entire-function candidate keeping only even coefficients -/
 def g (f : ℂ → ℂ) (w : ℂ) : ℂ := ∑' k, coeff f (2 * k) * w ^ k
 
-/-- The even subseries converges everywhere -/
 lemma g_summable (hf : Differentiable ℂ f) (w : ℂ) :
     Summable (fun k => coeff f (2 * k) * w ^ k) := by
   have hz : (Complex.sqrt w) ^ 2 = w := by
@@ -113,11 +94,10 @@ lemma g_summable (hf : Differentiable ℂ f) (w : ℂ) :
   rw [heq] at hs
   exact hs
 
-/-- Main identity: h(z) = g(z²), the translated form of f(s) = g((s-1/2)²) -/
 lemma h_eq_g_sq (hf : Differentiable ℂ f) (h_sym : ∀ s, f s = f (1 - s)) (z : ℂ) :
     h f z = g f (z ^ 2) := by
   set t : ℕ → ℂ := fun n => coeff f n * z ^ n with ht
-  -- Even part: HasSum to g(z²)
+
   have heven : HasSum (fun k => t (2 * k)) (g f (z ^ 2)) := by
     have hs : Summable fun k => t (2 * k) := by
       have := g_summable hf (z ^ 2)
@@ -128,7 +108,7 @@ lemma h_eq_g_sq (hf : Differentiable ℂ f) (h_sym : ∀ s, f s = f (1 - s)) (z 
       exact tsum_congr fun k => by simp [ht, pow_mul]
     rw [← hge]
     exact hs.hasSum
-  -- Odd part: pointwise zero, HasSum to 0
+
   have hodd0 : ∀ k : ℕ, t (2 * k + 1) = 0 := by
     intro k
     have hc := coeff_odd_zero h_sym (n := 2 * k + 1) ⟨k, rfl⟩
@@ -137,16 +117,14 @@ lemma h_eq_g_sq (hf : Differentiable ℂ f) (h_sym : ∀ s, f s = f (1 - s)) (z 
     have he : (fun k => t (2 * k + 1)) = fun _ => (0 : ℂ) := funext hodd0
     rw [he]
     exact hasSum_zero
-  -- Even + odd = everything
+
   have hfull := HasSum.even_add_odd heven hodd
   rw [add_zero] at hfull
   exact (h_taylor hf z).unique hfull
 
-/-- The power-series object of g (mathlib FMS wrapper) -/
 def gFMS (f : ℂ → ℂ) : FormalMultilinearSeries ℂ ℂ ℂ :=
   FormalMultilinearSeries.ofScalars ℂ (fun k => coeff f (2 * k))
 
-/-- g converges absolutely everywhere ⇒ radius of convergence ⊤ -/
 lemma gFMS_radius (hf : Differentiable ℂ f) : (gFMS f).radius = ⊤ := by
   apply FormalMultilinearSeries.radius_eq_top_of_summable_norm
   intro r
@@ -163,7 +141,6 @@ lemma gFMS_radius (hf : Differentiable ℂ f) : (gFMS f).radius = ⊤ := by
     rw [FormalMultilinearSeries.ofScalars_norm]
   rw [hn]
 
-/-- g is entire -/
 lemma g_diff (hf : Differentiable ℂ f) : Differentiable ℂ (g f) := by
   have hr : (gFMS f).radius = ⊤ := gFMS_radius hf
   have hp := (gFMS f).hasFPowerSeriesOnBall (by simp [hr])
@@ -179,8 +156,6 @@ lemma g_diff (hf : Differentiable ℂ f) : Differentiable ℂ (g f) := by
   rw [heq] at hdiff
   exact hdiff
 
-/-- Real-valued on the real axis ⇒ derivative real-valued (induction step of
-the real-coefficient lemma) -/
 lemma deriv_im_zero_of_im_zero {ψ : ℂ → ℂ} (hψ : Differentiable ℂ ψ)
     (hreal : ∀ t : ℝ, (ψ ↑t).im = 0) (t : ℝ) : (deriv ψ ↑t).im = 0 := by
   have hd : HasDerivAt ψ (deriv ψ ↑t) ↑t := (hψ ↑t).hasDerivAt
@@ -204,7 +179,6 @@ lemma deriv_im_zero_of_im_zero {ψ : ℂ → ℂ} (hψ : Differentiable ℂ ψ)
   rw [h5]
   simp
 
-/-- Derivatives of all orders are real-valued on the real axis (induction) -/
 lemma iteratedDeriv_im_zero (hd : Differentiable ℂ (h f))
     (hc : ∀ z, h f (star z) = star (h f z)) :
     ∀ n : ℕ, ∀ t : ℝ, (iteratedDeriv n (h f) ↑t).im = 0 := by
@@ -230,7 +204,6 @@ lemma iteratedDeriv_im_zero (hd : Differentiable ℂ (h f))
     rw [iteratedDeriv_succ]
     exact deriv_im_zero_of_im_zero (hdn n) ih t
 
-/-- All coefficients of g are real -/
 lemma g_real_coeff (hf : Differentiable ℂ f)
     (hc : ∀ z, h f (star z) = star (h f z)) (k : ℕ) :
     (coeff f (2 * k)).im = 0 := by
@@ -242,8 +215,6 @@ lemma g_real_coeff (hf : Differentiable ℂ f)
   rw [him]
   simp [Complex.inv_im]
 
-
-/-- g is real-valued on the real axis -/
 lemma g_real_on_real (hf : Differentiable ℂ f)
     (h_conj : ∀ s, f (star s) = star (f s)) (t : ℝ) : (g f ↑t).im = 0 := by
   have hc := h_conj_inv (f := f) h_conj
@@ -262,7 +233,6 @@ lemma g_real_on_real (hf : Differentiable ℂ f)
   simp_rw [hterm]
   exact tsum_zero
 
-/-- Representation form: f(s) = g((s−1/2)²) -/
 lemma rep_form (hf : Differentiable ℂ f) (h_sym : ∀ s, f s = f (1 - s)) (s : ℂ) :
     f s = g f ((s - 1/2)^2) := by
   have hz : h f (s - 1/2) = g f ((s - 1/2)^2) := h_eq_g_sq hf h_sym (s - 1/2)
@@ -273,8 +243,6 @@ lemma rep_form (hf : Differentiable ℂ f) (h_sym : ∀ s, f s = f (1 - s)) (s :
   rw [← h1]
   exact hz
 
-/-- Uniqueness: the representing function is uniquely determined by f
-(no analyticity hypothesis needed) -/
 theorem unique_rep {g1 g2 : ℂ → ℂ}
     (h1 : ∀ s : ℂ, f s = g1 ((s - 1/2)^2))
     (h2 : ∀ s : ℂ, f s = g2 ((s - 1/2)^2)) : g1 = g2 := by
@@ -291,9 +259,6 @@ theorem unique_rep {g1 g2 : ℂ → ℂ}
   rw [h1w] at h2w
   exact h2w
 
-/-- **Theorem 9.3A**: every double-reflection entire function has a unique
-    representation f(s) = g((s−1/2)²), where g is a real-coefficient
-    (real-valued on the real axis) entire function -/
 theorem theorem_9_3A (hf : Differentiable ℂ f)
     (h_sym : ∀ s, f s = f (1 - s))
     (h_conj : ∀ s, f (star s) = star (f s)) :

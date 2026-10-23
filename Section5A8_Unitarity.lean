@@ -1,37 +1,31 @@
 module
 
+/-
+Li Haiquan
+Jilin University of Chemical Technology, China
+ORCID: https://orcid.org/0009-0000-7365-6535
+Email: lihaiquan@jluct.edu.cn
+-/
+
 public import Mathlib.Analysis.SpecialFunctions.Exp
 
 @[expose] public section
-
-
-/-!
-5A.8 only.
-
-`SpectralReading.hSpec` is the explicit premise that the spectrum of the diagonal
-operator is the zero set `Z`. This file proves that, under that premise, the five
-statements of 5A.8 are equivalent. It does not prove that the roots are real.
--/
 
 open Complex Real Filter
 
 namespace Section5A8
 
-/-- Explicit spectral reading. `hSpec` packages premise P1: `Spec L = Z`. -/
 structure SpectralReading (ι : Type*) where
   α : ι → ℂ
   Z : Set ℂ
   hSpec : Set.range α = Z
 
-/-- Diagonal action on one coefficient: `L e_i = α_i e_i`. -/
 def applyL {ι : Type*} (R : SpectralReading ι) (i : ι) (c : ℂ) : ℂ :=
   R.α i * c
 
-/-- Evolution on one eigen-direction: `U(τ) e_i = exp(i τ α_i) e_i`. -/
 noncomputable def applyU {ι : Type*} (R : SpectralReading ι) (τ : ℝ) (i : ι) (c : ℂ) : ℂ :=
   exp (I * (τ : ℂ) * R.α i) * c
 
-/-- Energy of a basis vector: `⟨e_i, L e_i⟩ = α_i`. -/
 def energyBasis {ι : Type*} (R : SpectralReading ι) (i : ι) : ℂ :=
   star (1 : ℂ) * applyL R i 1
 
@@ -41,16 +35,13 @@ def rootsReal {ι : Type*} (R : SpectralReading ι) : Prop :=
 def specReal {ι : Type*} (R : SpectralReading ι) : Prop :=
   Set.range R.α ⊆ {z : ℂ | z.im = 0}
 
-/-- `L` is symmetric on every eigen-direction. -/
 def selfAdjointDiag {ι : Type*} (R : SpectralReading ι) : Prop :=
   ∀ i : ι, ∀ x y : ℂ, star (applyL R i x) * y = star x * applyL R i y
 
-/-- Each eigen-direction evolves by a strongly continuous phase of modulus one. -/
 def unitaryGroup {ι : Type*} (R : SpectralReading ι) : Prop :=
   (∀ i : ι, ∀ τ : ℝ, ‖applyU R τ i 1‖ = 1) ∧
     ∀ i : ι, Tendsto (fun τ : ℝ => applyU R τ i 1) (nhds 0) (nhds 1)
 
-/-- The energy of every basis vector is real. -/
 def energyReal {ι : Type*} (R : SpectralReading ι) : Prop :=
   ∀ i : ι, (energyBasis R i).im = 0
 
@@ -98,7 +89,6 @@ theorem unitary_iff_real {ι : Type*} (R : SpectralReading ι) :
     rw [applyU, Complex.norm_mul, norm_one, mul_one, norm_exp, re_I_mul_ofReal_mul, h i]
     simp
 
-/-- The phase is continuous at `τ = 0` on every eigen-direction. -/
 theorem mode_strongly_continuous {ι : Type*} (R : SpectralReading ι) (i : ι) :
     Tendsto (fun τ : ℝ => applyU R τ i 1) (nhds 0) (nhds 1) := by
   have hc : Continuous fun τ : ℝ => I * (τ : ℂ) * R.α i :=
@@ -133,15 +123,12 @@ theorem roots_iff_spec {ι : Type*} (R : SpectralReading ι) :
     rootsReal R ↔ specReal R := by
   simp [rootsReal, specReal, R.hSpec]
 
-/-- The two terms in `d/dτ ⟨U(τ)x, L U(τ)x⟩` cancel: `-i ‖Lx‖² + i ‖Lx‖² = 0`. -/
 theorem energy_derivative_cancels (v : ℂ) :
     star (I * v) * v + star v * (I * v) = 0 := by
   have hI : star I = -I := by rw [star_def, conj_I]
   rw [star_mul, hI, mul_assoc, ← mul_add]
   simp
 
-/-- 5A.8. Under `hSpec : Spec L = Z`, the five statements are equivalent.
-This does not prove `rootsReal`. -/
 theorem five_eight_equiv {ι : Type*} (R : SpectralReading ι) :
     rootsReal R ↔
       specReal R ∧ selfAdjointDiag R ∧ unitaryGroup R ∧ energyReal R := by

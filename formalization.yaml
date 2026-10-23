@@ -31,10 +31,7 @@ sources:
     note: >-
       First made public in this repository. The informal account of each
       compared theorem is its docstring in Challenge.lean. Labels such as
-      "Lemma 9.4" are the author's own numbering. Comments in the development
-      modules that cite "the paper" refer to the author's unpublished
-      manuscript and cannot be checked independently. Novelty has not been
-      established by a literature search.
+      "Lemma 9.4" are the author's own numbering.
   - title: "Ueber die Anzahl der Primzahlen unter einer gegebenen Grösse"
     authors:
       - "Bernhard Riemann"

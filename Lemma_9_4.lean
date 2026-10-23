@@ -11,42 +11,12 @@ public import Unitarity_Assembly
 
 @[expose] public section
 
-
-/-!
-# Lemma 9.4 (The χAB Structure of the Local Germ Space) — Lean 4 / mathlib Formalization
-
-Corresponding to paragraphs 467–536 of the paper. Let f : ℂ → ℂ satisfy the
-double-reflection symmetry:
-  (A) f(1−s) = f(s)  (reflection symmetry about the critical line)
-  (B) f(s̄) = conj(f(s))  (reflection symmetry about the real axis / conjugation)
-Write v = Im(f) (a real-valued function, in real coordinates
-vv (x,y) = Im(f(x+iy))).
-
-Formalized content:
-  (a) v is of χAB type: v(ιA s) = −v(s), v(ιB s) = −v(s)
-      where ιA(x,y) = (1−x, y), ιB(x,y) = (x, −y)
-  (b) v vanishes identically on L_A (the critical line Re = 1/2) and on L_B
-      (the real axis)
-  (c) simple zero (f'(ρ) ≠ 0) ⇒ ∇v(ρ) ≠ 0
-      (Cauchy–Riemann: ∇v = (Im f′, Re f′), established rigorously via the
-      ℝ-restriction chain rule for the complex derivative)
-  and the four-point orbit gradient vector: the values of ∇v on the four-point
-      orbit are exactly
-      w = (a, b, a, −b, −a, b, −a, −b) = chiABVec(∇v(ρ)) (paragraph 522)
-  Finally, an internal proof of the hgrad interface is given:
-      simple zero ⇒ existence of a nonzero gradient vector.
--/
-
 open RH95C RH95U
 
 namespace RH94
 
-/-- v = Im f in real coordinates -/
 def vim (f : ℂ → ℂ) (u : ℝ × ℝ) : ℝ := (f (↑u.1 + ↑u.2 * Complex.I)).im
 
-
-
-/-- (a) A channel: v(ιA u) = −v(u), where ιA(x,y) = (1−x, y) -/
 lemma vim_reflA {f : ℂ → ℂ} (h_sym : ∀ s, f (1 - s) = f s)
     (h_conj : ∀ s, f (star s) = star (f s)) (u : ℝ × ℝ) :
     vim f (reflA u) = -vim f u := by
@@ -55,7 +25,6 @@ lemma vim_reflA {f : ℂ → ℂ} (h_sym : ∀ s, f (1 - s) = f s)
   show (f (↑(1 - u.1) + ↑u.2 * Complex.I)).im = -(f (↑u.1 + ↑u.2 * Complex.I)).im
   rw [e, h_sym, h_conj, Complex.star_def, Complex.conj_im]
 
-/-- (a) B channel: v(ιB u) = −v(u), where ιB(x,y) = (x, −y) -/
 lemma vim_reflB {f : ℂ → ℂ} (h_conj : ∀ s, f (star s) = star (f s)) (u : ℝ × ℝ) :
     vim f (reflB u) = -vim f u := by
   have e : (↑u.1 + ↑(-u.2) * Complex.I : ℂ) = star (↑u.1 + ↑u.2 * Complex.I) := by
@@ -63,7 +32,6 @@ lemma vim_reflB {f : ℂ → ℂ} (h_conj : ∀ s, f (star s) = star (f s)) (u :
   show (f (↑u.1 + ↑(-u.2) * Complex.I)).im = -(f (↑u.1 + ↑u.2 * Complex.I)).im
   rw [e, h_conj, Complex.star_def, Complex.conj_im]
 
-/-- (b) v ≡ 0 on the critical line (the fixed line Re = 1/2 of ιA) -/
 lemma vim_critical_line {f : ℂ → ℂ} (h_sym : ∀ s, f (1 - s) = f s)
     (h_conj : ∀ s, f (star s) = star (f s)) (y : ℝ) : vim f (1/2, y) = 0 := by
   have h := vim_reflA h_sym h_conj (1/2, y)
@@ -73,7 +41,6 @@ lemma vim_critical_line {f : ℂ → ℂ} (h_sym : ∀ s, f (1 - s) = f s)
   rw [hfix] at h
   linarith [h]
 
-/-- (b) v ≡ 0 on the real axis (the fixed line Im = 0 of ιB) -/
 lemma vim_real_axis {f : ℂ → ℂ} (h_conj : ∀ s, f (star s) = star (f s)) (x : ℝ) :
     vim f (x, 0) = 0 := by
   have h := vim_reflB h_conj (x, 0)
@@ -81,10 +48,6 @@ lemma vim_real_axis {f : ℂ → ℂ} (h_conj : ∀ s, f (star s) = star (f s)) 
   rw [hfix] at h
   linarith [h]
 
-/-- Cauchy–Riemann core of (c) (x direction): ∂v/∂x = (f′).im.
-    Chain rule: x ↦ x+iy (ℝ→ℂ, derivative ofRealCLM) composed with f
-    (ℂ-differentiable, scalars restricted to ℝ), then take the imaginary part
-    (imCLM). -/
 lemma hasDerivAt_vim_x (hf : Differentiable ℂ f) (y x : ℝ) :
     HasDerivAt (fun x : ℝ => vim f (x, y)) (deriv f (↑x + ↑y * Complex.I)).im x := by
   have hg : HasFDerivAt (fun x : ℝ => (↑x + ↑y * Complex.I : ℂ)) Complex.ofRealCLM x :=
@@ -105,7 +68,6 @@ lemma hasDerivAt_vim_x (hf : Differentiable ℂ f) (y x : ℝ) :
   rw [hval] at hder
   exact hder
 
-/-- Cauchy–Riemann core of (c) (y direction): ∂v/∂y = (f′).re -/
 lemma hasDerivAt_vim_y (hf : Differentiable ℂ f) (x y : ℝ) :
     HasDerivAt (fun y : ℝ => vim f (x, y)) (deriv f (↑x + ↑y * Complex.I)).re y := by
   have hgfun : (fun y : ℝ => (↑x + ↑y * Complex.I : ℂ))
@@ -132,7 +94,6 @@ lemma hasDerivAt_vim_y (hf : Differentiable ℂ f) (x y : ℝ) :
   rw [hval] at hder
   exact hder
 
-/-- ∇v: the two real partial derivatives of v -/
 noncomputable def nablaV (f : ℂ → ℂ) (u : ℝ × ℝ) : ℝ × ℝ :=
   (deriv (fun x => vim f (x, u.2)) u.1, deriv (fun y => vim f (u.1, y)) u.2)
 
@@ -144,7 +105,6 @@ lemma nablaV_snd (hf : Differentiable ℂ f) (u : ℝ × ℝ) :
     (nablaV f u).2 = (deriv f (↑u.1 + ↑u.2 * Complex.I)).re :=
   (hasDerivAt_vim_y hf u.1 u.2).deriv
 
-/-- (c) Non-degenerate gradient at a simple zero: f′(ρ) ≠ 0 ⇒ ∇v(ρ) ≠ 0 -/
 lemma nablaV_ne_zero (hf : Differentiable ℂ f) {u : ℝ × ℝ}
     (h : deriv f (↑u.1 + ↑u.2 * Complex.I) ≠ 0) : nablaV f u ≠ 0 := by
   intro hz
@@ -155,8 +115,6 @@ lemma nablaV_ne_zero (hf : Differentiable ℂ f) {u : ℝ × ℝ}
   rw [nablaV_snd hf u] at h2
   exact Complex.ext h2 h1
 
-/-- A-reflection law of the gradient (paragraphs 504–510): ∇v(ιA u) = J_B (∇v u),
-    i.e. (a, b) ↦ (a, −b) -/
 lemma nablaV_reflA {f : ℂ → ℂ} (hf : Differentiable ℂ f)
     (h_sym : ∀ s, f (1 - s) = f s) (h_conj : ∀ s, f (star s) = star (f s))
     (u : ℝ × ℝ) : nablaV f (reflA u) = JB (nablaV f u) := by
@@ -191,8 +149,6 @@ lemma nablaV_reflA {f : ℂ → ℂ} (hf : Differentiable ℂ f)
   · exact hfst
   · exact hsnd
 
-/-- B-reflection law of the gradient (paragraphs 511–517): ∇v(ιB u) = J_A (∇v u),
-    i.e. (a, b) ↦ (−a, b) -/
 lemma nablaV_reflB {f : ℂ → ℂ} (hf : Differentiable ℂ f)
     (h_conj : ∀ s, f (star s) = star (f s))
     (u : ℝ × ℝ) : nablaV f (reflB u) = JA (nablaV f u) := by
@@ -227,12 +183,9 @@ lemma nablaV_reflB {f : ℂ → ℂ} (hf : Differentiable ℂ f)
   · exact hfst
   · exact hsnd
 
-/-- The gradient field on the four-point orbit -/
 noncomputable def orbitGrad (f : ℂ → ℂ) (σ γ : ℝ) : Fin 4 → ℝ × ℝ :=
   fun i => nablaV f (orbit σ γ i)
 
-/-- The orbit gradient is exactly a χAB-type vector
-    (paragraphs 518–522: w = (a, b, a, −b, −a, b, −a, −b)) -/
 lemma orbitGrad_eq {f : ℂ → ℂ} (hf : Differentiable ℂ f)
     (h_sym : ∀ s, f (1 - s) = f s) (h_conj : ∀ s, f (star s) = star (f s))
     (σ γ : ℝ) : orbitGrad f σ γ = chiABVec (nablaV f (σ, γ)) := by
@@ -246,9 +199,6 @@ lemma orbitGrad_eq {f : ℂ → ℂ} (hf : Differentiable ℂ f)
       nablaV_reflA hf h_sym h_conj (reflB (σ, γ)), nablaV_reflB hf h_conj (σ, γ)]
     rfl
 
-/-- **Lemma 9.4** (the χAB structure of the local germ space):
-    (a) v = Im f is of χAB type; (b) v vanishes on the critical line and the
-    real axis; (c) f′(ρ) ≠ 0 ⇒ ∇v(ρ) ≠ 0. -/
 theorem lemma_9_4 {f : ℂ → ℂ} (hf : Differentiable ℂ f)
     (h_sym : ∀ s, f (1 - s) = f s) (h_conj : ∀ s, f (star s) = star (f s)) :
     (∀ u : ℝ × ℝ, vim f (reflA u) = -vim f u)
@@ -260,10 +210,6 @@ theorem lemma_9_4 {f : ℂ → ℂ} (hf : Differentiable ℂ f)
    vim_critical_line h_sym h_conj, vim_real_axis h_conj,
    fun _ _ h => nablaV_ne_zero hf h⟩
 
-/-- Internal implementation of the hgrad interface (a direct corollary of
-    Lemma 9.4(c)): the simple-zero hypothesis (nonzero derivative at zeros)
-    ⇒ existence of a nonzero gradient vector.
-    Zero coordinates match the unitarity assembly file: ρ = σ + I·t. -/
 theorem hgrad_of_simple_zero {f : ℂ → ℂ} (hf : Differentiable ℂ f)
     (hsimple : ∀ σ t : ℝ, f (↑σ + Complex.I * ↑t) = 0 →
       deriv f (↑σ + Complex.I * ↑t) ≠ 0) :
@@ -278,8 +224,6 @@ theorem hgrad_of_simple_zero {f : ℂ → ℂ} (hf : Differentiable ℂ f)
 
 end RH94
 
-
-/- ## Axiom audit -/
 section Audit
 #print axioms RH94.vim_reflA
 #print axioms RH94.vim_reflB

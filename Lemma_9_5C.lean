@@ -15,30 +15,6 @@ public import Mathlib.Tactic
 
 @[expose] public section
 
-
-/-!
-# Lemma 9.5C (Heat-Kernel Regularization Limit) — Lean 4 / mathlib Formalization
-
-Object: the heat-kernel regularized geometric energy on the four-point orbit
-  E(α)[Φ] = (C/2) Σᵢ ∫ ρ_α(u) Φ(sᵢ+u) Φ(sᵢᴬ+J_A u) dλ + (B channel likewise)
-where ρ_α is the 2D Gaussian probability measure with variance α/2
-(i.e. the paper's δ(α)(z) = (πα)⁻¹e^{−‖z‖²/α}).
-
-Formalized content:
-1. Gaussian second moments: E[u_p²] = α/2, E[u₁u₂] = 0 (the "Gaussian second
-   moment formula" of Step 3)
-2. Main-term identity: ∫ ρ (w·u)(w'·Ju) = (α/2)(w·Jᵀw') (Step 3 main term)
-3. Exact scaling laws of the third and fourth moments:
-   m₃(α) = (√α)³·C₃, m₄(α) = α²·C₄ (Step 4 remainder scaling)
-4. Pointwise limit: (1/α)E(α)[Φ] → ⟨W, K̃W⟩ (Claim (i))
-5. χAB eigenvalue inheritance: on χAB-type W, ⟨W,K̃W⟩ = −(C/2)‖W‖² < 0 (Claim (ii))
-
-Note: the Taylor remainder bound |Φ(sᵢ+u) − wᵢ·u| ≤ M‖u‖² in Claim (i) of the
-paper is given as a hypothesis (the standard Taylor estimate for C² functions);
-all other analysis is machine-proved. (See `Lemma_9_5C_TaylorRemainder.lean`,
-where this hypothesis is discharged as the theorem `taylor_remainder_C2`.)
--/
-
 open MeasureTheory ProbabilityTheory
 open scoped NNReal ENNReal
 
@@ -46,19 +22,14 @@ noncomputable section
 
 namespace RH95C
 
-/-- Dot product of 2D vectors -/
 def dot (w u : ℝ × ℝ) : ℝ := w.1 * u.1 + w.2 * u.2
 
-/-- Jacobian of reflection A: diag(−1,1) (self-adjoint, orthogonal) -/
 def JA (u : ℝ × ℝ) : ℝ × ℝ := (-u.1, u.2)
 
-/-- Jacobian of reflection B: diag(1,−1) (self-adjoint, orthogonal) -/
 def JB (u : ℝ × ℝ) : ℝ × ℝ := (u.1, -u.2)
 
-/-- Single-coordinate Gaussian measure N(0, α/2) -/
 def G (α : ℝ) : Measure ℝ := gaussianReal 0 (Real.toNNReal (α / 2))
 
-/-- 2D heat-kernel probability measure (probabilistic form of the paper's δ(α)) -/
 def P (α : ℝ) : Measure (ℝ × ℝ) := (G α).prod (G α)
 
 instance (α : ℝ) : IsProbabilityMeasure (G α) :=
@@ -71,11 +42,9 @@ section Moments
 
 variable {α : ℝ}
 
-/-- First moment vanishes -/
 lemma integral_id_G : ∫ x : ℝ, x ∂(G α) = 0 :=
   integral_id_gaussianReal
 
-/-- Second moment: ∫ x² dN(0,α/2) = α/2 (1D form of the Gaussian second moment formula) -/
 lemma moment2 (hα : 0 < α) : ∫ x : ℝ, x ^ 2 ∂(G α) = α / 2 := by
   have h1 : Var[id; G α] = ↑(Real.toNNReal (α / 2)) := variance_id_gaussianReal
   rw [variance_eq_integral (by fun_prop)] at h1
@@ -87,7 +56,6 @@ lemma moment2 (hα : 0 < α) : ∫ x : ℝ, x ^ 2 ∂(G α) = α / 2 := by
   rw [h4] at h1
   exact h1
 
-/-- x² is integrable -/
 lemma integ_sq : Integrable (fun x : ℝ => x ^ 2) (G α) := by
   have h := (memLp_id_gaussianReal (μ := (0:ℝ)) (v := Real.toNNReal (α / 2))
     2).integrable_norm_rpow (by norm_num) (by norm_num)
@@ -97,28 +65,23 @@ lemma integ_sq : Integrable (fun x : ℝ => x ^ 2) (G α) := by
   rw [heq] at h
   exact h
 
-/-- id is integrable -/
 lemma integ_id : Integrable (fun x : ℝ => x) (G α) :=
   (memLp_id_gaussianReal (μ := (0:ℝ)) (v := Real.toNNReal (α / 2)) 1).integrable (by norm_num)
 
-/-- Constant integral over a probability measure -/
 lemma integral_one_G : ∫ _ : ℝ, (1 : ℝ) ∂(G α) = 1 := by
   rw [integral_const]
   simp
 
-/-- The u₁² moment over the product measure = α/2 -/
 lemma prod_moment_xx (hα : 0 < α) : ∫ u : ℝ × ℝ, u.1 ^ 2 ∂(P α) = α / 2 := by
   have h1 := integral_prod_mul (μ := G α) (ν := G α) (fun x : ℝ => x ^ 2) (fun _ : ℝ => (1 : ℝ))
   rw [moment2 hα, integral_one_G, mul_one] at h1
   simpa [P] using h1
 
-/-- The u₂² moment over the product measure = α/2 -/
 lemma prod_moment_yy (hα : 0 < α) : ∫ u : ℝ × ℝ, u.2 ^ 2 ∂(P α) = α / 2 := by
   have h1 := integral_prod_mul (μ := G α) (ν := G α) (fun _ : ℝ => (1 : ℝ)) (fun y : ℝ => y ^ 2)
   rw [moment2 hα, integral_one_G, one_mul] at h1
   simpa [P] using h1
 
-/-- Cross moment vanishes: ∫ u₁u₂ = 0 (independence) -/
 lemma prod_moment_xy : ∫ u : ℝ × ℝ, u.1 * u.2 ∂(P α) = 0 := by
   have h1 := integral_prod_mul (μ := G α) (ν := G α) (fun x : ℝ => x) (fun y : ℝ => y)
   rw [integral_id_G] at h1
@@ -130,7 +93,6 @@ section Scaling
 
 variable {α : ℝ}
 
-/-- 2D Euclidean norm -/
 def nrm2 (u : ℝ × ℝ) : ℝ := Real.sqrt (u.1 ^ 2 + u.2 ^ 2)
 
 lemma nrm2_nonneg (u : ℝ × ℝ) : 0 ≤ nrm2 u := Real.sqrt_nonneg _
@@ -147,13 +109,10 @@ lemma nrm2_scale (c : ℝ) (hc : 0 ≤ c) (u : ℝ × ℝ) :
   unfold nrm2
   rw [mul_pow, mul_pow, ← mul_add, Real.sqrt_mul (sq_nonneg c), Real.sqrt_sq hc]
 
-/-- Standard third-moment constant (E‖u‖³ at α = 1) -/
 def C3 : ℝ := ∫ u : ℝ × ℝ, (nrm2 u) ^ 3 ∂(P 1)
 
-/-- Standard fourth-moment constant (E‖u‖⁴ at α = 1) -/
 def C4 : ℝ := ∫ u : ℝ × ℝ, (nrm2 u) ^ 4 ∂(P 1)
 
-/-- Scaling law of the single-coordinate Gaussian: stretching by √α sends N(0,1/2) to N(0,α/2) -/
 lemma map_G (hα : 0 < α) : (G 1).map (fun x => Real.sqrt α * x) = G α := by
   have h := gaussianReal_map_const_mul (μ := (0:ℝ)) (v := Real.toNNReal (1/2)) (Real.sqrt α)
   rw [mul_zero] at h
@@ -167,7 +126,6 @@ lemma map_G (hα : 0 < α) : (G 1).map (fun x => Real.sqrt α * x) = G α := by
   rw [hv] at h
   exact h
 
-/-- Scaling law of the 2D heat-kernel measure -/
 lemma map_P (hα : 0 < α) :
     (P 1).map (fun u : ℝ × ℝ => (Real.sqrt α * u.1, Real.sqrt α * u.2)) = P α := by
   have hm : Measurable (fun x : ℝ => Real.sqrt α * x) := Measurable.const_mul measurable_id _
@@ -178,8 +136,6 @@ lemma map_P (hα : 0 < α) :
   rw [hmap] at h
   exact h.symm
 
-/-- Exact scaling law of the third moment: m₃(α) = (√α)³·C₃
-    (the strict form of ~α^{3/2} in Step 4) -/
 lemma m3_scaling (hα : 0 < α) :
     ∫ u : ℝ × ℝ, (nrm2 u) ^ 3 ∂(P α) = (Real.sqrt α) ^ 3 * C3 := by
   rw [← map_P hα]
@@ -194,8 +150,6 @@ lemma m3_scaling (hα : 0 < α) :
   rw [integral_const_mul]
   rfl
 
-/-- Exact scaling law of the fourth moment: m₄(α) = α²·C₄
-    (the strict form of ~α² in Step 4) -/
 lemma m4_scaling (hα : 0 < α) :
     ∫ u : ℝ × ℝ, (nrm2 u) ^ 4 ∂(P α) = α ^ 2 * C4 := by
   rw [← map_P hα]
@@ -214,7 +168,6 @@ lemma m4_scaling (hα : 0 < α) :
   rw [integral_const_mul]
   rfl
 
-/-- |x|³ is integrable w.r.t. N(0,1/2) -/
 lemma integ_abs3_G1 : Integrable (fun x : ℝ => |x| ^ 3) (G 1) := by
   have h := (memLp_id_gaussianReal (μ := (0:ℝ)) (v := Real.toNNReal (1/2))
     3).integrable_norm_rpow (by norm_num) (by norm_num)
@@ -224,7 +177,6 @@ lemma integ_abs3_G1 : Integrable (fun x : ℝ => |x| ^ 3) (G 1) := by
   rw [heq] at h
   exact h
 
-/-- |x|⁴ is integrable w.r.t. N(0,1/2) -/
 lemma integ_abs4_G1 : Integrable (fun x : ℝ => |x| ^ 4) (G 1) := by
   have h := (memLp_id_gaussianReal (μ := (0:ℝ)) (v := Real.toNNReal (1/2))
     4).integrable_norm_rpow (by norm_num) (by norm_num)
@@ -234,8 +186,6 @@ lemma integ_abs4_G1 : Integrable (fun x : ℝ => |x| ^ 4) (G 1) := by
   rw [heq] at h
   exact h
 
-/-- Third moment is finite: C₃ is the integral of an integrable function
-    (well-definedness of the Step 4 remainder) -/
 lemma integ_nrm3_P1 : Integrable (fun u : ℝ × ℝ => (nrm2 u) ^ 3) (P 1) := by
   have h1 : Integrable (fun u : ℝ × ℝ => |u.1| ^ 3) (P 1) := integ_abs3_G1.comp_fst (G 1)
   have h2 : Integrable (fun u : ℝ × ℝ => |u.2| ^ 3) (P 1) := integ_abs3_G1.comp_snd (G 1)
@@ -258,7 +208,6 @@ lemma integ_nrm3_P1 : Integrable (fun u : ℝ × ℝ => (nrm2 u) ^ 3) (P 1) := b
           nlinarith [abs_nonneg u.1, abs_nonneg u.2]
         nlinarith [abs_nonneg u.1, abs_nonneg u.2]
 
-/-- Fourth moment is finite: C₄ is the integral of an integrable function -/
 lemma integ_nrm4_P1 : Integrable (fun u : ℝ × ℝ => (nrm2 u) ^ 4) (P 1) := by
   have h1 : Integrable (fun u : ℝ × ℝ => |u.1| ^ 4) (P 1) := integ_abs4_G1.comp_fst (G 1)
   have h2 : Integrable (fun u : ℝ × ℝ => |u.2| ^ 4) (P 1) := integ_abs4_G1.comp_snd (G 1)
@@ -292,7 +241,6 @@ section MainTerm
 
 variable {α : ℝ}
 
-/-- Cauchy–Schwarz (2D): |w·u| ≤ ‖w‖·‖u‖ -/
 lemma dot_bound (w u : ℝ × ℝ) : |dot w u| ≤ nrm2 w * nrm2 u := by
   have hsq : (dot w u) ^ 2 ≤ (nrm2 w) ^ 2 * (nrm2 u) ^ 2 := by
     unfold dot nrm2
@@ -306,34 +254,25 @@ lemma dot_bound (w u : ℝ × ℝ) : |dot w u| ≤ nrm2 w * nrm2 u := by
     _ = Real.sqrt ((nrm2 w * nrm2 u) ^ 2) := by rw [mul_pow]
     _ = nrm2 w * nrm2 u := Real.sqrt_sq (mul_nonneg (nrm2_nonneg _) (nrm2_nonneg _))
 
-/-- JA preserves the norm -/
 lemma nrm2_JA (u : ℝ × ℝ) : nrm2 (JA u) = nrm2 u := by
   unfold nrm2 JA
   rw [neg_sq]
 
-/-- JB preserves the norm -/
 lemma nrm2_JB (u : ℝ × ℝ) : nrm2 (JB u) = nrm2 u := by
   unfold nrm2 JB
   rw [neg_sq]
 
-/-- u₁² is integrable over P α -/
 lemma integ_xx : Integrable (fun u : ℝ × ℝ => u.1 ^ 2) (P α) :=
   (integ_sq (α := α)).comp_fst (G α)
 
-/-- u₂² is integrable over P α -/
 lemma integ_yy : Integrable (fun u : ℝ × ℝ => u.2 ^ 2) (P α) :=
   (integ_sq (α := α)).comp_snd (G α)
 
-/-- u₁u₂ is integrable over P α -/
 lemma integ_xy : Integrable (fun u : ℝ × ℝ => u.1 * u.2) (P α) := by
   have h := (integ_id (α := α)).smul_prod (integ_id (α := α))
   simp only [smul_eq_mul] at h
   exact h
 
-/-- Main-term identity (with sign parameters):
-    ∫ ρ (w·u)(ε₁w'₁u₁+ε₂w'₂u₂) = (α/2)(ε₁w₁w'₁+ε₂w₂w'₂).
-    Cross moments vanish, leaving only diagonal contributions — the Gaussian
-    second moment formula of Step 3 of the paper. -/
 lemma channel_main (hα : 0 < α) (w w' : ℝ × ℝ) (e1 e2 : ℝ) :
     ∫ u : ℝ × ℝ, dot w u * (e1 * w'.1 * u.1 + e2 * w'.2 * u.2) ∂(P α)
       = (α/2) * (e1 * (w.1 * w'.1) + e2 * (w.2 * w'.2)) := by
@@ -382,7 +321,6 @@ lemma channel_main (hα : 0 < α) (w w' : ℝ × ℝ) (e1 e2 : ℝ) :
   rw [e1', e2', e3']
   ring
 
-/-- A-channel main term: ∫ ρ (w·u)(w'·J_Au) = (α/2)(w·J_Aw') -/
 lemma main_A (hα : 0 < α) (w w' : ℝ × ℝ) :
     ∫ u : ℝ × ℝ, dot w u * dot w' (JA u) ∂(P α) = (α/2) * dot w (JA w') := by
   have h := channel_main hα w w' (-1) 1
@@ -396,7 +334,6 @@ lemma main_A (hα : 0 < α) (w w' : ℝ × ℝ) :
   simp only [dot, JA]
   ring
 
-/-- B-channel main term: ∫ ρ (w·u)(w'·J_Bu) = (α/2)(w·J_Bw') -/
 lemma main_B (hα : 0 < α) (w w' : ℝ × ℝ) :
     ∫ u : ℝ × ℝ, dot w u * dot w' (JB u) ∂(P α) = (α/2) * dot w (JB w') := by
   have h := channel_main hα w w' 1 (-1)
@@ -414,16 +351,10 @@ end MainTerm
 
 section Energy
 
-/-- A-reflection indices of the four-point orbit: 0↔1, 2↔3 -/
 def iA : Fin 4 → Fin 4 := ![1, 0, 3, 2]
 
-/-- B-reflection indices of the four-point orbit: 0↔2, 1↔3 -/
 def iB : Fin 4 → Fin 4 := ![2, 3, 0, 1]
 
-/-- Field data bundle: Φ, the four-point orbit s, gradients w at the orbit points,
-    and the Taylor remainder constant M (= ½‖Φ‖_{C²}).
-    htaylor is the standard first-order Taylor remainder estimate for a C² smooth
-    field at points where Φ(sᵢ)=0. -/
 structure FieldData where
   Φ : ℝ × ℝ → ℝ
   s : Fin 4 → ℝ × ℝ
@@ -434,22 +365,17 @@ structure FieldData where
   hbound : ∃ B, 0 ≤ B ∧ ∀ z, |Φ z| ≤ B
   htaylor : ∀ i : Fin 4, ∀ u : ℝ × ℝ, |Φ (s i + u) - dot (w i) u| ≤ M * (nrm2 u) ^ 2
 
-/-- Heat-kernel regularized geometric energy (paragraph 593 of the paper; per the
-    paper's parenthetical note, the integral is extended to the whole space) -/
 def Egeom (D : FieldData) (C : ℝ) (α : ℝ) : ℝ :=
   (C/2) * ∑ i : Fin 4,
     ((∫ u : ℝ × ℝ, D.Φ (D.s i + u) * D.Φ (D.s (iA i) + JA u) ∂(P α))
     + ∫ u : ℝ × ℝ, D.Φ (D.s i + u) * D.Φ (D.s (iB i) + JB u) ∂(P α))
 
-/-- The K̃ geometric quadratic form: ⟨W, K̃ W⟩ (main-term coefficient of Step 5) -/
 def Kquad (C : ℝ) (w : Fin 4 → ℝ × ℝ) : ℝ :=
   (C/4) * ∑ i : Fin 4, (dot (w i) (JA (w (iA i))) + dot (w i) (JB (w (iB i))))
 
-/-- Total gradient scale constant -/
 def T1 (D : FieldData) : ℝ :=
   ∑ i : Fin 4, (nrm2 (D.w i) + nrm2 (D.w (iA i))) + ∑ i : Fin 4, (nrm2 (D.w i) + nrm2 (D.w (iB i)))
 
-/-- nrm2³ is integrable under the heat-kernel measure for any α > 0 -/
 lemma integ_nrm3 (hα : 0 < α) : Integrable (fun u : ℝ × ℝ => (nrm2 u) ^ 3) (P α) := by
   rw [← map_P hα]
   rw [integrable_map_measure (nrm2_measurable_pow 3).aestronglyMeasurable
@@ -463,7 +389,6 @@ lemma integ_nrm3 (hα : 0 < α) : Integrable (fun u : ℝ × ℝ => (nrm2 u) ^ 3
   rw [heq]
   exact integ_nrm3_P1.const_mul _
 
-/-- nrm2⁴ is integrable under the heat-kernel measure for any α > 0 -/
 lemma integ_nrm4 (hα : 0 < α) : Integrable (fun u : ℝ × ℝ => (nrm2 u) ^ 4) (P α) := by
   rw [← map_P hα]
   rw [integrable_map_measure (nrm2_measurable_pow 4).aestronglyMeasurable
@@ -478,7 +403,6 @@ lemma integ_nrm4 (hα : 0 < α) : Integrable (fun u : ℝ × ℝ => (nrm2 u) ^ 4
   rw [heq]
   exact integ_nrm4_P1.const_mul _
 
-/-- nrm2² is integrable -/
 lemma integ_nrm2sq : Integrable (fun u : ℝ × ℝ => (nrm2 u) ^ 2) (P α) := by
   have heq : (fun u : ℝ × ℝ => (nrm2 u) ^ 2) = fun u => u.1 ^ 2 + u.2 ^ 2 := by
     funext u
@@ -487,7 +411,6 @@ lemma integ_nrm2sq : Integrable (fun u : ℝ × ℝ => (nrm2 u) ^ 2) (P α) := b
   rw [heq]
   exact (integ_xx (α := α)).add (integ_yy (α := α))
 
-/-- Single-channel decomposition and remainder bound (core estimate of Steps 3–4) -/
 lemma channel_bound (D : FieldData) (hα : 0 < α)
     (si sii : ℝ × ℝ) (wi wii : ℝ × ℝ) (J : ℝ × ℝ → ℝ × ℝ)
     (hnJ : ∀ u, nrm2 (J u) = nrm2 u) (hmJ : Measurable J)
@@ -519,7 +442,7 @@ lemma channel_bound (D : FieldData) (hα : 0 < α)
     have h := ht_ii (J u)
     rw [hnJ u] at h
     exact h
-  -- Integrability of each block
+
   have ibb : Integrable (fun u => b u * bJ u) (P α) := by
     refine ((integ_nrm2sq (α := α)).const_mul (nrm2 wi * nrm2 wii)).mono'
       (hmb.mul hmbJ).aestronglyMeasurable (Filter.Eventually.of_forall fun u => ?_)
@@ -552,7 +475,7 @@ lemma channel_bound (D : FieldData) (hα : 0 < α)
     calc |a u - b u| * |aJ u - bJ u| ≤ (D.M * (nrm2 u) ^ 2) * (D.M * (nrm2 u) ^ 2) :=
           mul_le_mul (hr u) (hrJ u) (abs_nonneg _) (mul_nonneg D.hM (by positivity))
       _ = D.M ^ 2 * (nrm2 u) ^ 4 := by ring
-  -- Algebraic decomposition
+
   have hdecomp : (fun u => a u * aJ u)
       = (fun u => b u * bJ u) + (fun u => b u * (aJ u - bJ u))
         + (fun u => (a u - b u) * bJ u) + (fun u => (a u - b u) * (aJ u - bJ u)) := by
@@ -577,7 +500,7 @@ lemma channel_bound (D : FieldData) (hα : 0 < α)
         = (∫ u : ℝ × ℝ, b u * bJ u ∂(P α)) + ∫ u : ℝ × ℝ, b u * (aJ u - bJ u) ∂(P α) :=
       integral_add' ibb ibr
     rw [s1, s2, s3]
-  -- Estimates of the three error terms
+
   have e1 : |∫ u : ℝ × ℝ, b u * (aJ u - bJ u) ∂(P α)|
       ≤ (nrm2 wi * D.M) * (∫ u : ℝ × ℝ, (nrm2 u) ^ 3 ∂(P α)) := by
     calc |∫ u : ℝ × ℝ, b u * (aJ u - bJ u) ∂(P α)|
@@ -619,7 +542,7 @@ lemma channel_bound (D : FieldData) (hα : 0 < α)
                 mul_le_mul (hr u) (hrJ u) (abs_nonneg _) (mul_nonneg D.hM (by positivity))
             _ = D.M ^ 2 * (nrm2 u) ^ 4 := by ring
       _ = D.M ^ 2 * (∫ u : ℝ × ℝ, (nrm2 u) ^ 4 ∂(P α)) := integral_const_mul _ _
-  -- Combine
+
   have hsum : ∫ u : ℝ × ℝ, a u * aJ u ∂(P α) - (α/2) * V
       = ∫ u : ℝ × ℝ, b u * (aJ u - bJ u) ∂(P α)
         + ∫ u : ℝ × ℝ, (a u - b u) * bJ u ∂(P α)
@@ -640,7 +563,6 @@ lemma channel_bound (D : FieldData) (hα : 0 < α)
     _ = (nrm2 wi + nrm2 wii) * D.M * (∫ u : ℝ × ℝ, (nrm2 u) ^ 3 ∂(P α))
         + D.M ^ 2 * (∫ u : ℝ × ℝ, (nrm2 u) ^ 4 ∂(P α)) := by ring
 
-/-- Main term + remainder ⇒ energy error bound (quantitative form of Claim (i)) -/
 lemma energy_error_bound (D : FieldData) (hC : 0 ≤ C) (hα : 0 < α) :
     |Egeom D C α - α * Kquad C D.w|
       ≤ (C/2) * (D.M * T1 D * ((Real.sqrt α) ^ 3 * C3) + 8 * D.M ^ 2 * (α ^ 2 * C4)) := by
@@ -650,7 +572,7 @@ lemma energy_error_bound (D : FieldData) (hC : 0 ≤ C) (hα : 0 < α) :
   have hmJB : Measurable JB := by unfold JB; fun_prop
   set m3 := ∫ u : ℝ × ℝ, (nrm2 u) ^ 3 ∂(P α) with hm3
   set m4 := ∫ u : ℝ × ℝ, (nrm2 u) ^ 4 ∂(P α) with hm4
-  -- Per-point, per-channel error
+
   have perA : ∀ i : Fin 4, |∫ u : ℝ × ℝ, D.Φ (D.s i + u) * D.Φ (D.s (iA i) + JA u) ∂(P α)
       - (α/2) * dot (D.w i) (JA (D.w (iA i)))|
       ≤ (nrm2 (D.w i) + nrm2 (D.w (iA i))) * D.M * m3 + D.M ^ 2 * m4 := fun i =>
@@ -661,7 +583,7 @@ lemma energy_error_bound (D : FieldData) (hC : 0 ≤ C) (hα : 0 < α) :
       ≤ (nrm2 (D.w i) + nrm2 (D.w (iB i))) * D.M * m3 + D.M ^ 2 * m4 := fun i =>
     channel_bound D hα (D.s i) (D.s (iB i)) (D.w i) (D.w (iB i)) JB hnJB hmJB
       (D.htaylor i) (D.htaylor (iB i)) _ (main_B hα (D.w i) (D.w (iB i)))
-  -- Rewrite Egeom − α·Kquad as (C/2) times the sum of per-point errors
+
   have hrewrite : Egeom D C α - α * Kquad C D.w
       = (C/2) * ∑ i : Fin 4,
         ((∫ u : ℝ × ℝ, D.Φ (D.s i + u) * D.Φ (D.s (iA i) + JA u) ∂(P α)
@@ -726,7 +648,6 @@ lemma energy_error_bound (D : FieldData) (hC : 0 ≤ C) (hα : 0 < α) :
     _ = (C/2) * (D.M * T1 D * ((Real.sqrt α) ^ 3 * C3) + 8 * D.M ^ 2 * (α ^ 2 * C4)) := by
         rw [hm3, m3_scaling hα, hm4, m4_scaling hα]
 
-/-- Claim (i): pointwise limit lim_{α→0⁺} E(α)[Φ]/α = ⟨W, K̃W⟩ -/
 theorem heat_kernel_tendsto (D : FieldData) (hC : 0 ≤ C) :
     Filter.Tendsto (fun α => Egeom D C α / α - Kquad C D.w)
       (nhdsWithin 0 (Set.Ioi 0)) (nhds 0) := by
@@ -761,9 +682,6 @@ theorem heat_kernel_tendsto (D : FieldData) (hC : 0 ≤ C) :
         rw [hs3]
         field_simp
 
-/-- Claim (ii): on χAB-type gradient vectors, ⟨W,K̃W⟩ = −(C/2)‖W‖².
-    χAB condition: w_{iA} = −J_A w_i (covector transformation + antisymmetry),
-    i.e. w_{iA} = J_B w_i; likewise w_{iB} = J_A w_i. -/
 theorem Kquad_chiAB (C : ℝ) (w : Fin 4 → ℝ × ℝ)
     (hA : ∀ i, w (iA i) = JB (w i)) (hB : ∀ i, w (iB i) = JA (w i)) :
     Kquad C w = -(C/2) * ∑ i : Fin 4, (nrm2 (w i)) ^ 2 := by
@@ -782,7 +700,6 @@ theorem Kquad_chiAB (C : ℝ) (w : Fin 4 → ℝ × ℝ)
   rw [hterm i]
   ring
 
-/-- Energy is strictly negative on nonzero χAB gradient vectors: −(C/2)‖W‖² < 0 -/
 theorem Kquad_chiAB_neg (C : ℝ) (w : Fin 4 → ℝ × ℝ) (hC : 0 < C)
     (hA : ∀ i, w (iA i) = JB (w i)) (hB : ∀ i, w (iB i) = JA (w i))
     (hne : ∃ i : Fin 4, w i ≠ 0) :
@@ -816,8 +733,6 @@ theorem Kquad_chiAB_neg (C : ℝ) (w : Fin 4 → ℝ × ℝ) (hC : 0 < C)
     · exact hpos
   exact this
 
-/-- **Lemma 9.5C (main theorem)**: (i) pointwise limit + (ii) χAB eigenvalue
-    inheritance (strictly negative) -/
 theorem lemma_9_5C (D : FieldData) (hC : 0 < C) :
     (Filter.Tendsto (fun α => Egeom D C α / α) (nhdsWithin 0 (Set.Ioi 0))
       (nhds (Kquad C D.w)))
@@ -837,8 +752,6 @@ end Energy
 
 end RH95C
 
-
-/- ## Axiom audit -/
 section Audit
 #print axioms RH95C.moment2
 #print axioms RH95C.channel_main
