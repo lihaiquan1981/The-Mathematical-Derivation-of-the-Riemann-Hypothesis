@@ -24,9 +24,12 @@ public import Mathlib.Topology.Algebra.Support
 open Complex Filter
 
 /-!
-The statements Palomar compares. Each one is a theorem already proved in this
-repository. Hypotheses that the paper keeps on the signature stay on the
-signature. None of these statements is the 1859 German sentence by itself.
+The statements Palomar compares. Each named theorem is proved in `Solution`
+under exactly the hypotheses written on its signature. Those hypotheses are
+not discharged here. None of these statements is the 1859 German sentence.
+
+Labels such as "Theorem 9.3A" or "Lemma 9.4" are the author's own numbering and
+serve only as names.
 -/
 
 /-- Index action of `A : s ↦ 1 - conj s` on `orbit`: swaps 0 ↔ 1 and 2 ↔ 3. -/
@@ -76,10 +79,6 @@ noncomputable def orbitC (σ t : ℝ) : Fin 4 → ℂ :=
 junk convention, so the assemblies only use it off `{0, 1}`. -/
 noncomputable def xiFn (s : ℂ) : ℂ := (s * (s - 1) / 2) * completedRiemannZeta s
 
-/-- Lowest kernel eigenvalue, doubled: `-2C + 2ε` generic, `2ε` collapsed. -/
-def minEig (collapsed : Bool) (C ε : Int) : Int :=
-  if collapsed then 2 * ε else -2 * C + 2 * ε
-
 /-- Theorem 9.3A. An entire `f` with `f s = f (1 - s)` and Schwarz reflection
 has a unique representation `f s = g ((s - 1/2)^2)` with `g` entire and real on
 the real axis. -/
@@ -94,27 +93,10 @@ theorem theorem_9_3A
       (∀ s : ℂ, f s = g2 ((s - 1/2)^2)) → g1 = g2) := by
   sorry
 
-/-- Mother-equation sign certificate under `C > ε > 0`: in the doubled
-normalization the χAB eigenvalue `-2C + 2ε` is negative, the χ0 and collapsed
-eigenvalues `2C + 2ε` and `2ε` are positive, and the gap `2C` is positive. -/
+/-- Integer arithmetic certificate: for `C > ε > 0`, `-2C + 2ε < 0`,
+`2C + 2ε > 0`, `2ε > 0`, and `2C > 0`. -/
 theorem mother_equation_core_certificate (C ε : Int) (hC : C > ε) (hε : ε > 0) :
     (-2 * C + 2 * ε < 0) ∧ (2 * C + 2 * ε > 0 ∧ 2 * ε > 0) ∧ (2 * C > 0) := by
-  sorry
-
-/-- The sign pattern of the kernel spectrum under `C > ε > 0`. -/
-theorem unitarity_sign (C ε : Int) (hC : C > ε) (hε : ε > 0) :
-    -2 * C + 2 * ε < 0 ∧ 2 * C + 2 * ε > 0 ∧ 2 * ε > 0 := by
-  sorry
-
-/-- Phase cliff: the lowest eigenvalue is negative on a generic orbit, positive
-on a collapsed orbit, and the jump between them is exactly `2C`. -/
-theorem phase_cliff (C ε : Int) (hC : C > ε) (hε : ε > 0) :
-    minEig false C ε < 0 ∧ minEig true C ε > 0 ∧
-      minEig true C ε - minEig false C ε = 2 * C := by
-  sorry
-
-/-- An orbit is either collapsed or generic; there is no third state. -/
-theorem no_intermediate_state : ∀ b : Bool, b = true ∨ b = false := by
   sorry
 
 /-- Lemma 9.4. For entire `f` with both reflections, `Im f` is odd under each
@@ -150,7 +132,8 @@ theorem theorem_9_5_final (C : ℝ) (hC : 0 < C)
     False := by
   sorry
 
-/-- Theorem 10, simple-zero form: every zero off the critical line is real. -/
+/-- Theorem 10, simple-zero form: under `hsimple` and `hunit`, every zero of `f`
+off the critical line is real. -/
 theorem theorem_10_final (C : ℝ) (hC : 0 < C)
     (f : ℂ → ℂ) (hf : Differentiable ℂ f)
     (h_sym : ∀ s, f (1 - s) = f s) (h_conj : ∀ s, f (star s) = star (f s))
@@ -173,7 +156,8 @@ theorem critical_line_lock {s : ℂ} {w : ℝ}
     s.re = 1 / 2 := by
   sorry
 
-/-- General assembly, simple-zero form: every zero is on the critical line or real. -/
+/-- General assembly, simple-zero form: under `hsimple` and `hunit`, every zero
+of `f` is on the critical line or real. -/
 theorem RH_general (C : ℝ) (hC : 0 < C)
     (f : ℂ → ℂ) (hf : Differentiable ℂ f)
     (h_sym : ∀ s, f (1 - s) = f s) (h_conj : ∀ s, f (star s) = star (f s))
@@ -239,7 +223,7 @@ theorem theorem_9_5_multiplicity (C : ℝ) (hC : 0 < C)
 
 /-- ξ assembly for zeros of any multiplicity. The simplicity hypothesis of
 `RH_xi` is removed; `hE_pos`, `hE_neg`, and `hζ` stay on the signature. -/
-theorem RH_xi_unconditional (C : ℝ) (hC : 0 < C)
+theorem RH_xi_any_multiplicity (C : ℝ) (hC : 0 < C)
     (E : ℕ → (Fin 4 → ℂ) → ℝ)
     (g : ℂ → ℂ)
     (hE_pos : ∀ (m : ℕ) (J : Fin 4 → ℂ),
@@ -273,8 +257,9 @@ theorem five_eight_equiv {ι : Type*} (α : ι → ℂ) (Z : Set ℂ) (hSpec : S
       (∀ i, (α i).im = 0) := by
   sorry
 
-/-- Theorem 10 for zeros of any multiplicity: every zero off the critical line is real. -/
-theorem theorem_10_unconditional (C : ℝ) (hC : 0 < C)
+/-- Theorem 10 for zeros of any multiplicity: under `hE_pos` and `hE_neg`, every
+zero of `f` off the critical line is real. -/
+theorem theorem_10_any_multiplicity (C : ℝ) (hC : 0 < C)
     (E : ℕ → (Fin 4 → ℂ) → ℝ)
     (f : ℂ → ℂ)
     (hE_pos : ∀ (m : ℕ) (J : Fin 4 → ℂ),
@@ -294,8 +279,9 @@ theorem theorem_10_unconditional (C : ℝ) (hC : 0 < C)
     ∀ σ t : ℝ, f (↑σ + I * ↑t) = 0 → σ ≠ 1 / 2 → t = 0 := by
   sorry
 
-/-- General assembly for zeros of any multiplicity. -/
-theorem RH_general_unconditional (C : ℝ) (hC : 0 < C)
+/-- General assembly for zeros of any multiplicity: under `hE_pos` and `hE_neg`,
+every zero of `f` is on the critical line or real. -/
+theorem RH_general_any_multiplicity (C : ℝ) (hC : 0 < C)
     (E : ℕ → (Fin 4 → ℂ) → ℝ)
     (f : ℂ → ℂ)
     (hE_pos : ∀ (m : ℕ) (J : Fin 4 → ℂ),
@@ -316,8 +302,8 @@ theorem RH_general_unconditional (C : ℝ) (hC : 0 < C)
     σ = 1 / 2 ∨ t = 0 := by
   sorry
 
-/-- The zero set of `g` in `RH_xi_unconditional` lies in the critical line together with `{0, 1}`. -/
-theorem RH_xi_zeros_unconditional (C : ℝ) (hC : 0 < C)
+/-- The zero set of `g` in `RH_xi_any_multiplicity` lies in the critical line together with `{0, 1}`. -/
+theorem RH_xi_zeros_any_multiplicity (C : ℝ) (hC : 0 < C)
     (E : ℕ → (Fin 4 → ℂ) → ℝ)
     (g : ℂ → ℂ)
     (hE_pos : ∀ (m : ℕ) (J : Fin 4 → ℂ),

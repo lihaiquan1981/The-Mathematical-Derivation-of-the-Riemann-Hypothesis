@@ -4,14 +4,13 @@ version: "v0.4"
 project:
   name: "Load-bearing chain of the forward-reverse closure"
   description: >-
-    Li Haiquan, Jilin University of Chemical Technology. This Comparator entry
-    checks the exit theorem of each development module: the even reduction,
-    the mother-equation sign certificate, the chiAB energy sign, the closed
-    unitarity loop, the xi positivity lemma, both assemblies, the higher-order
-    jet loop, the Taylor remainder, and the five-way equivalence under an
-    explicit spectral reading. Hypotheses that the manuscript keeps on a
-    signature stay on that signature. The entry does not assert the 1859
-    statement of the Riemann Hypothesis.
+    This entry compares Lean theorems about entire functions f with
+    f(1 - s) = f(s) and f(conj s) = conj f(s), and about Riemann's xi. The assemblies are
+    conditional: under hunit, or under hE_pos and hE_neg, together with hζ,
+    every zero of xi other than 0 and 1 has real part 1/2. At an off-line
+    nonreal zero, hunit contradicts the proved sign Kquad_chiAB_neg, and
+    hE_pos contradicts hE_neg. These hypotheses are not proved, so the entry
+    does not prove the Riemann Hypothesis.
   authors:
     - "Li Haiquan"
   license: "GPL-3.0"
@@ -23,27 +22,29 @@ classification:
   msc2020: ["11M26", "47B25", "68V15"]
 
 sources:
-  - title: "The Mathematical Derivation of the Forward-Reverse Reversible Bidirectional Closure of the Riemann Hypothesis"
+  - title: "Lean 4 formalization of the double-reflection lemmas for ξ (this repository)"
     authors:
       - "Li Haiquan"
-    type: "paper"
-    relationship: "formalizes"
+    type: "original-proof"
+    relationship: "other"
     note: >-
-      comparator.json names the exit declaration of each module in the
-      manuscript. ORCID https://orcid.org/0009-0000-7365-6535.
-      Email lihaiquan@jluct.edu.cn.
+      First made public in this repository. The informal account of each
+      compared theorem is its docstring in Challenge.lean. Labels such as
+      "Lemma 9.4" are the author's own numbering. Comments in the development
+      modules that cite "the paper" refer to the author's unpublished
+      manuscript and cannot be checked independently. Novelty has not been
+      established by a literature search.
+  - title: "Ueber die Anzahl der Primzahlen unter einer gegebenen Grösse"
+    authors:
+      - "Bernhard Riemann"
+    type: "paper"
+    relationship: "background"
+    note: "Monatsberichte der Berliner Akademie, 1859, pp. 671–680. Context only."
 
 status:
   scope: >-
-    comparator.json compares the twenty-one declarations listed there. Each
-    Solution proof calls the corresponding development theorem, so the lemmas
-    used by that proof are in the checked cone. hζ, hE_pos, hE_neg, hBd,
-    hg_simple, and hSpec stay on the signatures and are not discharged.
-    The 1859 German sentence is not a declaration in Challenge.lean.
-    lemma_9_5C quantifies over the project type FieldData, so it is not a
-    separate Comparator name; its chiAB sign is the named theorem
-    Kquad_chiAB_neg, and the Taylor remainder that fills htaylor is
-    taylor_remainder_C2.
+    The declarations in comparator.json. Hypotheses on their signatures are
+    not discharged.
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: []
@@ -53,17 +54,14 @@ automation:
     - method: "agent"
       models: []
       framework: "n/a"
-      tool_setup: "An interactive coding agent drafted and revised Lean files from the author's manuscript."
+      tool_setup: "The author used an interactive coding agent to draft and revise the Lean files."
       cost:
         wall_time: "not tracked"
         spend_usd: "not tracked"
         hardware: "local machine"
         prompting_notes: "n/a"
   spend_usd: "not tracked"
-  notes: >-
-    Li Haiquan is the author of the manuscript and the responsible maintainer
-    of this formalization. An interactive coding agent was used to prepare the
-    Lean sources and the Palomar project files.
+  notes: "Li Haiquan is the author and responsible maintainer."
 
 fidelity:
   divergences: >-
@@ -74,11 +72,7 @@ fidelity:
 
 review:
   status: "self-assessed"
-  notes: >-
-    The author checked the earlier compile of these proofs on Lean 4.34.0-rc2.
-    Those logs are in build_logs/. This commit ports the sources to the module
-    system and pins Lean v4.35.0-rc2, which is Palomar's current minimum.
-    Challenge.lean and Solution.lean were rebuilt together on that toolchain.
+  notes: "Challenge.lean and Solution.lean build together on Lean v4.35.0-rc2."
 
 alignment:
   namespace: "Solution"
@@ -89,18 +83,6 @@ alignment:
       status: "proved"
     - source: "Mother-equation sign certificate"
       lean: "mother_equation_core_certificate"
-      module: "Solution"
-      status: "proved"
-    - source: "Unitarity sign"
-      lean: "unitarity_sign"
-      module: "Solution"
-      status: "proved"
-    - source: "Phase cliff"
-      lean: "phase_cliff"
-      module: "Solution"
-      status: "proved"
-    - source: "No intermediate orbit state"
-      lean: "no_intermediate_state"
       module: "Solution"
       status: "proved"
     - source: "Lemma 9.4"
@@ -144,19 +126,19 @@ alignment:
       module: "Solution"
       status: "proved"
     - source: "Theorem 10, arbitrary multiplicity"
-      lean: "theorem_10_unconditional"
+      lean: "theorem_10_any_multiplicity"
       module: "Solution"
       status: "proved"
     - source: "General assembly, arbitrary multiplicity"
-      lean: "RH_general_unconditional"
+      lean: "RH_general_any_multiplicity"
       module: "Solution"
       status: "proved"
     - source: "xi assembly, arbitrary multiplicity"
-      lean: "RH_xi_unconditional"
+      lean: "RH_xi_any_multiplicity"
       module: "Solution"
       status: "proved"
     - source: "xi zero set, arbitrary multiplicity"
-      lean: "RH_xi_zeros_unconditional"
+      lean: "RH_xi_zeros_any_multiplicity"
       module: "Solution"
       status: "proved"
     - source: "Taylor remainder under hBd"

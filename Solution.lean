@@ -62,9 +62,6 @@ noncomputable def orbitC (σ t : ℝ) : Fin 4 → ℂ :=
 
 noncomputable def xiFn (s : ℂ) : ℂ := (s * (s - 1) / 2) * completedRiemannZeta s
 
-def minEig (collapsed : Bool) (C ε : Int) : Int :=
-  if collapsed then 2 * ε else -2 * C + 2 * ε
-
 private lemma xiFn_eq (s : ℂ) : xiFn s = RH113.xiFn s := by
   simp [xiFn, RH113.xiFn]
 
@@ -139,18 +136,6 @@ theorem theorem_9_3A
 theorem mother_equation_core_certificate (C ε : Int) (hC : C > ε) (hε : ε > 0) :
     (-2 * C + 2 * ε < 0) ∧ (2 * C + 2 * ε > 0 ∧ 2 * ε > 0) ∧ (2 * C > 0) :=
   MotherEquation.mother_equation_core_certificate C ε hC hε
-
-theorem unitarity_sign (C ε : Int) (hC : C > ε) (hε : ε > 0) :
-    -2 * C + 2 * ε < 0 ∧ 2 * C + 2 * ε > 0 ∧ 2 * ε > 0 :=
-  MotherEquation.unitarity_sign C ε hC hε
-
-theorem phase_cliff (C ε : Int) (hC : C > ε) (hε : ε > 0) :
-    minEig false C ε < 0 ∧ minEig true C ε > 0 ∧
-      minEig true C ε - minEig false C ε = 2 * C := by
-  simpa [minEig, MotherEquation.minEig] using MotherEquation.phase_cliff C ε hC hε
-
-theorem no_intermediate_state : ∀ b : Bool, b = true ∨ b = false :=
-  MotherEquation.no_intermediate_state
 
 theorem lemma_9_4 {f : ℂ → ℂ} (hf : Differentiable ℂ f)
     (h_sym : ∀ s, f (1 - s) = f s) (h_conj : ∀ s, f (star s) = star (f s)) :
@@ -277,7 +262,7 @@ theorem theorem_9_5_multiplicity (C : ℝ) (hC : 0 < C)
         · exact hJ)
       hf h_sym h_conj hne hz hσ ht
 
-theorem RH_xi_unconditional (C : ℝ) (hC : 0 < C)
+theorem RH_xi_any_multiplicity (C : ℝ) (hC : 0 < C)
     (E : ℕ → (Fin 4 → ℂ) → ℝ)
     (g : ℂ → ℂ)
     (hE_pos : ∀ (m : ℕ) (J : Fin 4 → ℂ),
@@ -328,7 +313,7 @@ theorem five_eight_equiv {ι : Type*} (α : ι → ℂ) (Z : Set ℂ) (hSpec : S
     Section5A8.unitaryGroup, Section5A8.energyReal, Section5A8.applyL, Section5A8.applyU,
     Section5A8.energyBasis] using Section5A8.five_eight_equiv R
 
-theorem theorem_10_unconditional (C : ℝ) (hC : 0 < C)
+theorem theorem_10_any_multiplicity (C : ℝ) (hC : 0 < C)
     (E : ℕ → (Fin 4 → ℂ) → ℝ)
     (f : ℂ → ℂ)
     (hE_pos : ∀ (m : ℕ) (J : Fin 4 → ℂ),
@@ -349,7 +334,7 @@ theorem theorem_10_unconditional (C : ℝ) (hC : 0 < C)
   RHM.theorem_10_unconditional C hC E f (posBridge hE_pos) (negBridge hE_neg)
     hf h_sym h_conj hne
 
-theorem RH_general_unconditional (C : ℝ) (hC : 0 < C)
+theorem RH_general_any_multiplicity (C : ℝ) (hC : 0 < C)
     (E : ℕ → (Fin 4 → ℂ) → ℝ)
     (f : ℂ → ℂ)
     (hE_pos : ∀ (m : ℕ) (J : Fin 4 → ℂ),
@@ -371,7 +356,7 @@ theorem RH_general_unconditional (C : ℝ) (hC : 0 < C)
   RHFinalM.RH_general_unconditional C hC E f (posBridge hE_pos) (negBridge hE_neg)
     hf h_sym h_conj hne hz
 
-theorem RH_xi_zeros_unconditional (C : ℝ) (hC : 0 < C)
+theorem RH_xi_zeros_any_multiplicity (C : ℝ) (hC : 0 < C)
     (E : ℕ → (Fin 4 → ℂ) → ℝ)
     (g : ℂ → ℂ)
     (hE_pos : ∀ (m : ℕ) (J : Fin 4 → ℂ),
