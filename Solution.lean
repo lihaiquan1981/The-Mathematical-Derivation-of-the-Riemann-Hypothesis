@@ -30,7 +30,7 @@ import Final_Assembly_Unconditional
 import Lemma_9_5C_TaylorRemainder
 import Section5A8_Unitarity
 
-public section
+@[expose] public section
 
 open Complex Filter
 

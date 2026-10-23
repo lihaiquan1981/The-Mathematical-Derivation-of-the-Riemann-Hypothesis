@@ -19,7 +19,7 @@ public import Mathlib.Analysis.Calculus.ContDiff.Defs
 public import Mathlib.Analysis.Calculus.FDeriv.Basic
 public import Mathlib.Topology.Algebra.Support
 
-public section
+@[expose] public section
 
 open Complex Filter
 
@@ -29,38 +29,60 @@ repository. Hypotheses that the paper keeps on the signature stay on the
 signature. None of these statements is the 1859 German sentence by itself.
 -/
 
+/-- Index action of `A : s ↦ 1 - conj s` on `orbit`: swaps 0 ↔ 1 and 2 ↔ 3. -/
 def iA : Fin 4 → Fin 4 := ![1, 0, 3, 2]
+/-- Index action of `B : s ↦ conj s` on `orbit`: swaps 0 ↔ 2 and 1 ↔ 3. -/
 def iB : Fin 4 → Fin 4 := ![2, 3, 0, 1]
+/-- Action of `A` on a plane vector: the first coordinate changes sign. -/
 def JA (u : ℝ × ℝ) : ℝ × ℝ := (-u.1, u.2)
+/-- Action of `B` on a plane vector: the second coordinate changes sign. -/
 def JB (u : ℝ × ℝ) : ℝ × ℝ := (u.1, -u.2)
+/-- Euclidean inner product on `ℝ × ℝ`. -/
 def dot (w u : ℝ × ℝ) : ℝ := w.1 * u.1 + w.2 * u.2
+/-- Euclidean norm on `ℝ × ℝ`. Mathlib's norm on a product is the max norm. -/
 noncomputable def nrm2 (u : ℝ × ℝ) : ℝ := Real.sqrt (u.1 ^ 2 + u.2 ^ 2)
 
+/-- Coupling quadratic form of the double-reflection kernel on a four-point
+vector field `w`: each point is paired with its `A`-image through `JA` and with
+its `B`-image through `JB`, with coupling constant `C`. -/
 noncomputable def Kquad (C : ℝ) (w : Fin 4 → ℝ × ℝ) : ℝ :=
   (C / 4) * ∑ i : Fin 4, (dot (w i) (JA (w (iA i))) + dot (w i) (JB (w (iB i))))
 
+/-- Imaginary part of `f` at the point `x + y i`, read as a real function of `(x, y)`. -/
 def vim (f : ℂ → ℂ) (u : ℝ × ℝ) : ℝ := (f (↑u.1 + ↑u.2 * I)).im
 
+/-- Reflection in the critical line `Re s = 1/2`, in coordinates. -/
 def reflA (u : ℝ × ℝ) : ℝ × ℝ := (1 - u.1, u.2)
+/-- Reflection in the real axis, in coordinates. -/
 def reflB (u : ℝ × ℝ) : ℝ × ℝ := (u.1, -u.2)
 
+/-- Gradient of `vim f` at `u`, by partial derivatives in `x` and `y`. -/
 noncomputable def nablaV (f : ℂ → ℂ) (u : ℝ × ℝ) : ℝ × ℝ :=
   (deriv (fun x => vim f (x, u.2)) u.1, deriv (fun y => vim f (u.1, y)) u.2)
 
+/-- The four-point orbit of `(σ, t)` under the two reflections. -/
 def orbit (σ t : ℝ) : Fin 4 → ℝ × ℝ := ![(σ, t), (1 - σ, t), (σ, -t), (1 - σ, -t)]
 
+/-- The gradient field of `vim f` sampled on the orbit of `(σ, γ)`. -/
 noncomputable def orbitGrad (f : ℂ → ℂ) (σ γ : ℝ) : Fin 4 → ℝ × ℝ :=
   fun i => nablaV f (orbit σ γ i)
 
+/-- The orbit as complex numbers `ρ, 1 - conj ρ, conj ρ, 1 - ρ` with `ρ = σ + i t`. -/
 noncomputable def orbitC (σ t : ℝ) : Fin 4 → ℂ :=
   ![↑σ + I * ↑t, 1 - star (↑σ + I * ↑t), star (↑σ + I * ↑t), 1 - (↑σ + I * ↑t)]
 
+/-- Riemann's `ξ(s) = s (s - 1) / 2 · π^(-s/2) Γ(s/2) ζ(s)`, written with Mathlib's
+`completedRiemannZeta`. Its values at `s = 0, 1` are artefacts of Mathlib's
+junk convention, so the assemblies only use it off `{0, 1}`. -/
 noncomputable def xiFn (s : ℂ) : ℂ := (s * (s - 1) / 2) * completedRiemannZeta s
 
+/-- Lowest kernel eigenvalue, doubled: `-2C + 2ε` generic, `2ε` collapsed. -/
 def minEig (collapsed : Bool) (C ε : Int) : Int :=
   if collapsed then 2 * ε else -2 * C + 2 * ε
 
-/-- Theorem 9.3A. -/
+/-- Theorem 9.3A. An entire `f` with `f s = f (1 - s)` and Schwarz reflection
+has a unique representation `f s = g ((s - 1/2)^2)` with `g` entire and real on
+the real axis. -/
 theorem theorem_9_3A
     {f : ℂ → ℂ}
     (hf : Differentiable ℂ f)
@@ -72,24 +94,32 @@ theorem theorem_9_3A
       (∀ s : ℂ, f s = g2 ((s - 1/2)^2)) → g1 = g2) := by
   sorry
 
-/-- Mother-equation sign certificate under `C > ε > 0`. -/
+/-- Mother-equation sign certificate under `C > ε > 0`: in the doubled
+normalization the χAB eigenvalue `-2C + 2ε` is negative, the χ0 and collapsed
+eigenvalues `2C + 2ε` and `2ε` are positive, and the gap `2C` is positive. -/
 theorem mother_equation_core_certificate (C ε : Int) (hC : C > ε) (hε : ε > 0) :
     (-2 * C + 2 * ε < 0) ∧ (2 * C + 2 * ε > 0 ∧ 2 * ε > 0) ∧ (2 * C > 0) := by
   sorry
 
+/-- The sign pattern of the kernel spectrum under `C > ε > 0`. -/
 theorem unitarity_sign (C ε : Int) (hC : C > ε) (hε : ε > 0) :
     -2 * C + 2 * ε < 0 ∧ 2 * C + 2 * ε > 0 ∧ 2 * ε > 0 := by
   sorry
 
+/-- Phase cliff: the lowest eigenvalue is negative on a generic orbit, positive
+on a collapsed orbit, and the jump between them is exactly `2C`. -/
 theorem phase_cliff (C ε : Int) (hC : C > ε) (hε : ε > 0) :
     minEig false C ε < 0 ∧ minEig true C ε > 0 ∧
       minEig true C ε - minEig false C ε = 2 * C := by
   sorry
 
+/-- An orbit is either collapsed or generic; there is no third state. -/
 theorem no_intermediate_state : ∀ b : Bool, b = true ∨ b = false := by
   sorry
 
-/-- Lemma 9.4. -/
+/-- Lemma 9.4. For entire `f` with both reflections, `Im f` is odd under each
+reflection, vanishes on the critical line and on the real axis, and has nonzero
+gradient wherever `f′ ≠ 0`. -/
 theorem lemma_9_4 {f : ℂ → ℂ} (hf : Differentiable ℂ f)
     (h_sym : ∀ s, f (1 - s) = f s) (h_conj : ∀ s, f (star s) = star (f s)) :
     (∀ u : ℝ × ℝ, vim f (reflA u) = -vim f u) ∧
@@ -99,13 +129,17 @@ theorem lemma_9_4 {f : ℂ → ℂ} (hf : Differentiable ℂ f)
     (∀ σ γ : ℝ, deriv f (↑σ + ↑γ * I) ≠ 0 → nablaV f (σ, γ) ≠ 0) := by
   sorry
 
-/-- The χAB quadratic form is strictly negative. -/
+/-- Lemma 9.5C, part (ii): on a nonzero χAB-type configuration
+(`w ∘ iA = JB ∘ w`, `w ∘ iB = JA ∘ w`) the coupling form is strictly negative. -/
 theorem Kquad_chiAB_neg (C : ℝ) (w : Fin 4 → ℝ × ℝ) (hC : 0 < C)
     (hA : ∀ i, w (iA i) = JB (w i)) (hB : ∀ i, w (iB i) = JA (w i))
     (hne : ∃ i : Fin 4, w i ≠ 0) :
     Kquad C w < 0 := by
   sorry
 
+/-- Theorem 9.5, simple-zero form. A zero `σ + i t` with `σ ≠ 1/2`, `t ≠ 0` of an
+entire doubly reflected `f` contradicts the unitarity hypothesis `hunit`, which
+asks the coupling form to be positive on the orbit gradient of such a zero. -/
 theorem theorem_9_5_final (C : ℝ) (hC : 0 < C)
     (f : ℂ → ℂ) (hf : Differentiable ℂ f)
     (h_sym : ∀ s, f (1 - s) = f s) (h_conj : ∀ s, f (star s) = star (f s))
@@ -116,6 +150,7 @@ theorem theorem_9_5_final (C : ℝ) (hC : 0 < C)
     False := by
   sorry
 
+/-- Theorem 10, simple-zero form: every zero off the critical line is real. -/
 theorem theorem_10_final (C : ℝ) (hC : 0 < C)
     (f : ℂ → ℂ) (hf : Differentiable ℂ f)
     (h_sym : ∀ s, f (1 - s) = f s) (h_conj : ∀ s, f (star s) = star (f s))
@@ -125,17 +160,20 @@ theorem theorem_10_final (C : ℝ) (hC : 0 < C)
     ∀ σ t : ℝ, f (↑σ + I * ↑t) = 0 → σ ≠ 1 / 2 → t = 0 := by
   sorry
 
+/-- Lemma 11.3. Given `hζ`, `ξ` is real and positive at real points other than 0, 1. -/
 theorem lemma_11_3
     (hζ : ∀ x : ℝ, 0 < x → x < 1 → (riemannZeta (x : ℂ)).re < 0)
     {x : ℝ} (hx0 : x ≠ 0) (hx1 : x ≠ 1) :
     (0 : ℝ) < (xiFn (x : ℂ)).re ∧ (xiFn (x : ℂ)).im = 0 := by
   sorry
 
+/-- If `(s - 1/2)^2` is a negative real number, then `Re s = 1/2`. -/
 theorem critical_line_lock {s : ℂ} {w : ℝ}
     (hw : (s - 1 / 2) ^ 2 = (w : ℂ)) (hwneg : w < 0) :
     s.re = 1 / 2 := by
   sorry
 
+/-- General assembly, simple-zero form: every zero is on the critical line or real. -/
 theorem RH_general (C : ℝ) (hC : 0 < C)
     (f : ℂ → ℂ) (hf : Differentiable ℂ f)
     (h_sym : ∀ s, f (1 - s) = f s) (h_conj : ∀ s, f (star s) = star (f s))
@@ -146,6 +184,9 @@ theorem RH_general (C : ℝ) (hC : 0 < C)
     σ = 1 / 2 ∨ t = 0 := by
   sorry
 
+/-- ξ assembly, simple-zero form. For an entire `g` equal to `xiFn` off `{0, 1}`,
+under `hunit`, `hζ`, and simplicity of zeros, every zero other than 0, 1 has
+real part 1/2. -/
 theorem RH_xi (C : ℝ) (hC : 0 < C)
     (g : ℂ → ℂ) (hg : Differentiable ℂ g)
     (hunit : ∀ σ t : ℝ, g (↑σ + I * ↑t) = 0 → σ ≠ 1 / 2 → t ≠ 0 →
@@ -158,6 +199,7 @@ theorem RH_xi (C : ℝ) (hC : 0 < C)
     s.re = 1 / 2 := by
   sorry
 
+/-- The zero set of `g` in `RH_xi` lies in the critical line together with `{0, 1}`. -/
 theorem RH_xi_zeros (C : ℝ) (hC : 0 < C)
     (g : ℂ → ℂ) (hg : Differentiable ℂ g)
     (hunit : ∀ σ t : ℝ, g (↑σ + I * ↑t) = 0 → σ ≠ 1 / 2 → t ≠ 0 →
@@ -170,6 +212,10 @@ theorem RH_xi_zeros (C : ℝ) (hC : 0 < C)
     s.re = 1 / 2 ∨ s = 0 ∨ s = 1 := by
   sorry
 
+/-- Theorem 9.5 for zeros of any multiplicity. `E m` is the order-`m` jet energy
+form. `hE_pos` is the unitarity hypothesis on the jet configuration of an
+off-line nonreal zero; `hE_neg` asks `E m` to be negative on every nonzero jet
+with the χAB pairing. The two together exclude such a zero. -/
 theorem theorem_9_5_multiplicity (C : ℝ) (hC : 0 < C)
     (E : ℕ → (Fin 4 → ℂ) → ℝ)
     (f : ℂ → ℂ)
@@ -191,6 +237,8 @@ theorem theorem_9_5_multiplicity (C : ℝ) (hC : 0 < C)
     False := by
   sorry
 
+/-- ξ assembly for zeros of any multiplicity. The simplicity hypothesis of
+`RH_xi` is removed; `hE_pos`, `hE_neg`, and `hζ` stay on the signature. -/
 theorem RH_xi_unconditional (C : ℝ) (hC : 0 < C)
     (E : ℕ → (Fin 4 → ℂ) → ℝ)
     (g : ℂ → ℂ)
@@ -213,7 +261,9 @@ theorem RH_xi_unconditional (C : ℝ) (hC : 0 < C)
     s.re = 1 / 2 := by
   sorry
 
-/-- 5A.8 under the explicit reading `Set.range α = Z`. -/
+/-- Section 5A.8 under the spectral reading `hSpec : Set.range α = Z`: real roots,
+real spectrum, symmetry, a unitary group, and real energies are equivalent.
+This does not prove that the roots are real. -/
 theorem five_eight_equiv {ι : Type*} (α : ι → ℂ) (Z : Set ℂ) (hSpec : Set.range α = Z) :
     Z ⊆ {z : ℂ | z.im = 0} ↔
       Set.range α ⊆ {z : ℂ | z.im = 0} ∧
@@ -223,6 +273,7 @@ theorem five_eight_equiv {ι : Type*} (α : ι → ℂ) (Z : Set ℂ) (hSpec : S
       (∀ i, (α i).im = 0) := by
   sorry
 
+/-- Theorem 10 for zeros of any multiplicity: every zero off the critical line is real. -/
 theorem theorem_10_unconditional (C : ℝ) (hC : 0 < C)
     (E : ℕ → (Fin 4 → ℂ) → ℝ)
     (f : ℂ → ℂ)
@@ -243,6 +294,7 @@ theorem theorem_10_unconditional (C : ℝ) (hC : 0 < C)
     ∀ σ t : ℝ, f (↑σ + I * ↑t) = 0 → σ ≠ 1 / 2 → t = 0 := by
   sorry
 
+/-- General assembly for zeros of any multiplicity. -/
 theorem RH_general_unconditional (C : ℝ) (hC : 0 < C)
     (E : ℕ → (Fin 4 → ℂ) → ℝ)
     (f : ℂ → ℂ)
@@ -264,6 +316,7 @@ theorem RH_general_unconditional (C : ℝ) (hC : 0 < C)
     σ = 1 / 2 ∨ t = 0 := by
   sorry
 
+/-- The zero set of `g` in `RH_xi_unconditional` lies in the critical line together with `{0, 1}`. -/
 theorem RH_xi_zeros_unconditional (C : ℝ) (hC : 0 < C)
     (E : ℕ → (Fin 4 → ℂ) → ℝ)
     (g : ℂ → ℂ)
@@ -286,6 +339,9 @@ theorem RH_xi_zeros_unconditional (C : ℝ) (hC : 0 < C)
     s.re = 1 / 2 ∨ s = 0 ∨ s = 1 := by
   sorry
 
+/-- Taylor remainder for Lemma 9.5C. For a compactly supported `C²` field `Φ` with
+bounded second derivative (`hBd`) and a zero `z0`, the first-order expansion at
+`z0` has a remainder bounded by `M · ‖u‖²`. -/
 theorem taylor_remainder_C2 {Φ : ℝ × ℝ → ℝ} (hΦ : ContDiff ℝ 2 Φ)
     (hcs : HasCompactSupport Φ)
     (hBd : ∃ B, 0 ≤ B ∧ ∀ z, ‖fderiv ℝ (fderiv ℝ Φ) z‖ ≤ B)
