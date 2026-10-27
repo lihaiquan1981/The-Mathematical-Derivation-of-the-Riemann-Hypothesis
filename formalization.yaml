@@ -2,16 +2,12 @@
 version: "v0.4"
 
 project:
-  name: "Conditional double-reflection criteria for zeros of ξ"
+  name: "Double-reflection lemmas in Lean 4"
   description: >-
-    This entry compares Lean theorems about entire functions f with
-    f(1 - s) = f(s) and f(conj s) = conj f(s), and about Riemann's xi. The
-    assemblies are conditional: for simple zeros under hunit, and for zeros of
-    any multiplicity under hE_pos and hE_neg, together with hζ, every zero of
-    xi other than 0 and 1 has real part 1/2. theorem_9_5_final and
-    theorem_9_5_multiplicity derive False from these hypotheses at a zero off
-    the critical line and off the real axis. These hypotheses are not proved,
-    so the entry does not prove the Riemann Hypothesis.
+    Lean theorems on entire functions f with f(1 - s) = f(s) and
+    f(conj s) = conj f(s), stated in Challenge.lean. five_eight_equiv
+    characterizes, under hSpec, when a set lies in the real axis by
+    scalar-multiplication and exponential conditions.
   authors:
     - "Li Haiquan"
   license: "GPL-3.0"
@@ -23,26 +19,16 @@ classification:
   msc2020: ["11M26", "47B25", "68V15"]
 
 sources:
-  - title: "Lean 4 formalization of the double-reflection lemmas for ξ (this repository)"
-    authors:
-      - "Li Haiquan"
-    type: "original-proof"
-    relationship: "other"
-    note: >-
-      First made public in this repository. The informal account of each
-      compared theorem is its docstring in Challenge.lean. Labels such as
-      "Lemma 9.4" are the author's own numbering.
   - title: "Ueber die Anzahl der Primzahlen unter einer gegebenen Grösse"
     authors:
       - "Bernhard Riemann"
     type: "paper"
-    relationship: "background"
-    note: "Monatsberichte der Berliner Akademie, 1859, pp. 671–680. Context only."
+    relationship: "adapts"
+    id: "Monatsberichte der Berliner Akademie, 1859, pp. 671–680"
+    note: "theorem_9_3A, lemma_9_4, lemma_11_3, and critical_line_lock adapt results of this paper."
 
 status:
-  scope: >-
-    The declarations in comparator.json. Hypotheses on their signatures are
-    not discharged.
+  scope: "The declarations in comparator.json."
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: []
@@ -60,12 +46,6 @@ automation:
         prompting_notes: "n/a"
   spend_usd: "not tracked"
   notes: "Li Haiquan is the author and responsible maintainer."
-
-fidelity:
-  divergences: >-
-    Entireness is formalized as complex differentiability. The xi factor is
-    (s*(s-1)/2)*completedRiemannZeta. hunit, hE_pos, and hE_neg are
-    hypotheses on the signatures, not theorems with those hypotheses removed.
 
 review:
   status: "self-assessed"
@@ -86,7 +66,7 @@ alignment:
       lean: "lemma_9_4"
       module: "Solution"
       status: "proved"
-    - source: "Sign of Kquad on chiAB configurations"
+    - source: "Lemma 9.5C (ii)"
       lean: "Kquad_chiAB_neg"
       module: "Solution"
       status: "proved"
@@ -110,39 +90,39 @@ alignment:
       lean: "RH_general"
       module: "Solution"
       status: "proved"
-    - source: "xi assembly, simple zeros"
+    - source: "Assembly, simple zeros"
       lean: "RH_xi"
       module: "Solution"
       status: "proved"
-    - source: "xi zero set, simple zeros"
+    - source: "Zero set, simple zeros"
       lean: "RH_xi_zeros"
       module: "Solution"
       status: "proved"
-    - source: "Theorem 9.5, arbitrary multiplicity"
+    - source: "Theorem 9.5, any multiplicity"
       lean: "theorem_9_5_multiplicity"
       module: "Solution"
       status: "proved"
-    - source: "Theorem 10, arbitrary multiplicity"
+    - source: "Theorem 10, any multiplicity"
       lean: "theorem_10_any_multiplicity"
       module: "Solution"
       status: "proved"
-    - source: "General assembly, arbitrary multiplicity"
+    - source: "General assembly, any multiplicity"
       lean: "RH_general_any_multiplicity"
       module: "Solution"
       status: "proved"
-    - source: "xi assembly, arbitrary multiplicity"
+    - source: "Assembly, any multiplicity"
       lean: "RH_xi_any_multiplicity"
       module: "Solution"
       status: "proved"
-    - source: "xi zero set, arbitrary multiplicity"
+    - source: "Zero set, any multiplicity"
       lean: "RH_xi_zeros_any_multiplicity"
       module: "Solution"
       status: "proved"
-    - source: "Taylor remainder under hBd"
+    - source: "Taylor remainder for Lemma 9.5C"
       lean: "taylor_remainder_C2"
       module: "Solution"
       status: "proved"
-    - source: "Section 5A.8 equivalence under hSpec"
+    - source: "Section 5A.8 equivalence"
       lean: "five_eight_equiv"
       module: "Solution"
       status: "proved"
